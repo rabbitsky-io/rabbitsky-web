@@ -1,0 +1,14 @@
+{
+    "embed": {
+        "type": "twitch",
+        "id": "monstercat",
+        "chat": true
+    },
+    "servers": [
+        {
+            "name": "Demo Example",
+            "host": "demo.rabbitsky.io",
+            "secure": true
+        }
+    ]
+}
