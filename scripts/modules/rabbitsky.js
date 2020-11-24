@@ -66,7 +66,9 @@ var RabbitSky = function(embedType, embedID, embedChat) {
     var skyboxMaterialTop = new MeshBasicMaterial({ map: backgroundTop, side: BackSide, transparent: true })
     var skyboxMaterialBottom = new MeshBasicMaterial({ map: backgroundBottom, side: BackSide, transparent: true })
     var skybox = new Mesh(skyboxGeo, [ skyboxMaterialSide, skyboxMaterialSide, skyboxMaterialTop, skyboxMaterialBottom, skyboxMaterialSide, skyboxMaterialSide ]);
-    that.sceneBackground.add(skybox);
+    skybox.position.set(2000, 0, 1500);
+
+    this.sceneBackground.add(skybox);
 
     this.chatEmbedWidth = 0;
     this.chatEmbedWidthBeforeHide = 0;

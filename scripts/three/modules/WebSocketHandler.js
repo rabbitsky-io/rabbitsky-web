@@ -26,20 +26,20 @@ var WebSocketHandler = function(rabbit, floor) {
     this.disconnectedReason = "";
 
 
-    // Sanitize float, because too many number is dangerous
-    this.sanitizeFloat = function(float) {
-        return parseFloat(float).toFixed(2);
+    // We don't really need float tho
+    this.floatToInt = function(float) {
+        return Math.round(float);
     }
 
     // Main Rabbit Past Information for Sending Messages
     this.rabbitPast = {
-        x: this.sanitizeFloat(this.rabbit.object.position.x),
-        y: this.sanitizeFloat(this.rabbit.object.position.y),
-        z: this.sanitizeFloat(this.rabbit.object.position.z),
+        x: this.floatToInt(this.rabbit.object.position.x),
+        y: this.floatToInt(this.rabbit.object.position.y),
+        z: this.floatToInt(this.rabbit.object.position.z),
 
-        lookX: this.sanitizeFloat(this.rabbit.lookX),
-        lookY: this.sanitizeFloat(this.rabbit.lookY),
-        lookZ: this.sanitizeFloat(this.rabbit.lookZ),
+        lookX: this.floatToInt(this.rabbit.lookX),
+        lookY: this.floatToInt(this.rabbit.lookY),
+        lookZ: this.floatToInt(this.rabbit.lookZ),
 
         isDuck: this.rabbit.isDuck
     };
@@ -185,12 +185,12 @@ var WebSocketHandler = function(rabbit, floor) {
             this.rabbit.colorH,
             this.rabbit.colorS,
             this.rabbit.colorL,
-            this.sanitizeFloat(this.rabbit.object.position.x),
-            this.sanitizeFloat(this.rabbit.object.position.y),
-            this.sanitizeFloat(this.rabbit.object.position.z),
-            this.sanitizeFloat(rabbitLookAt.x),
-            this.sanitizeFloat(rabbitLookAt.y),
-            this.sanitizeFloat(rabbitLookAt.z),
+            this.floatToInt(this.rabbit.object.position.x),
+            this.floatToInt(this.rabbit.object.position.y),
+            this.floatToInt(this.rabbit.object.position.z),
+            this.floatToInt(rabbitLookAt.x),
+            this.floatToInt(rabbitLookAt.y),
+            this.floatToInt(rabbitLookAt.z),
             (this.rabbit.isDuck) ? 1 : 0
         ];
 
@@ -205,7 +205,7 @@ var WebSocketHandler = function(rabbit, floor) {
         var rabbitData = [ "1" ]; // Send Code 1 for update
 
         // Position
-        var currX = this.sanitizeFloat(this.rabbit.object.position.x);
+        var currX = this.floatToInt(this.rabbit.object.position.x);
         if(currX != this.rabbitPast.x) {
             rabbitData.push(currX);
             this.rabbitPast.x = currX;
@@ -214,7 +214,7 @@ var WebSocketHandler = function(rabbit, floor) {
             rabbitData.push("");
         }
 
-        var currY = this.sanitizeFloat(this.rabbit.object.position.y);
+        var currY = this.floatToInt(this.rabbit.object.position.y);
         if(currY != this.rabbitPast.y) {
             rabbitData.push(currY);
             this.rabbitPast.y = currY;
@@ -223,7 +223,7 @@ var WebSocketHandler = function(rabbit, floor) {
             rabbitData.push("");
         }
 
-        var currZ = this.sanitizeFloat(this.rabbit.object.position.z);
+        var currZ = this.floatToInt(this.rabbit.object.position.z);
         if(currZ != this.rabbitPast.z) {
             rabbitData.push(currZ);
             this.rabbitPast.z = currZ;
@@ -235,7 +235,7 @@ var WebSocketHandler = function(rabbit, floor) {
         // Look At
         var rabbitLookAt = this.rabbit.currentLookAt();
 
-        var currLookX = this.sanitizeFloat(rabbitLookAt.x);
+        var currLookX = this.floatToInt(rabbitLookAt.x);
         if(currLookX != this.rabbitPast.lookX) {
             rabbitData.push(currLookX);
             this.rabbitPast.lookX = currLookX;
@@ -244,7 +244,7 @@ var WebSocketHandler = function(rabbit, floor) {
             rabbitData.push("");
         }
 
-        var currLookY = this.sanitizeFloat(rabbitLookAt.y);
+        var currLookY = this.floatToInt(rabbitLookAt.y);
         if(currLookY != this.rabbitPast.lookY) {
             rabbitData.push(currLookY);
             this.rabbitPast.lookY = currLookY;
@@ -253,7 +253,7 @@ var WebSocketHandler = function(rabbit, floor) {
             rabbitData.push("");
         }
 
-        var currLookZ = this.sanitizeFloat(rabbitLookAt.z);
+        var currLookZ = this.floatToInt(rabbitLookAt.z);
         if(currLookZ != this.rabbitPast.lookZ) {
             rabbitData.push(currLookZ);
             this.rabbitPast.lookZ = currLookZ;
@@ -281,6 +281,7 @@ var WebSocketHandler = function(rabbit, floor) {
             this.wsConn.send(rabbitData.join(','));
         }
     };
+
 
     this.sendPing = function() {
         this.wsConn.send('P');

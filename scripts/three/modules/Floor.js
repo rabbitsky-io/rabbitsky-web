@@ -16,6 +16,9 @@ var Floor = function(embed, scene, w, d) {
     this.width = (typeof w !== 'undefined') ? w : 4000;
     this.depth = (typeof d !== 'undefined') ? d : 3000;
 
+    this.positionX = Math.round(this.width / 2);
+    this.positionZ = Math.round(this.depth / 2);
+
     this.spawnPadding = 5;
     this.spawnAreaFromBehind = 500;
 
@@ -24,7 +27,7 @@ var Floor = function(embed, scene, w, d) {
     var danceFloorGeo = new BoxBufferGeometry( this.width, this.depth, 4 );
     var danceFloorMaterial = new MeshStandardMaterial({ color: 0x000000, transparent: true, opacity: 0.5, roughness: 0.4, metalness: 0 });
     this.object = new Mesh( danceFloorGeo, danceFloorMaterial );
-    this.object.position.set( 0, 0, 0 );
+    this.object.position.set( this.positionX, 0, this.positionZ );
     this.object.rotateX( - Math.PI / 2 );
 
     var mirrorGeo = new PlaneBufferGeometry( this.width - 2, this.depth - 2 );
@@ -34,7 +37,7 @@ var Floor = function(embed, scene, w, d) {
         textureHeight: window.innerHeight * window.devicePixelRatio,
         color: 0xffffff
     } );
-    this.objectMirror.position.set(0, -2, 0);
+    this.objectMirror.position.set(this.positionX, -2, this.positionZ);
     this.objectMirror.rotateX( - Math.PI / 2 );
 
     this.scene.add(this.objectMirror);
@@ -44,8 +47,8 @@ var Floor = function(embed, scene, w, d) {
     this.bigRabbitVisible = true;
     this.bigRabbit = new Rabbit(0, 0, 100, 50, 50, 50);
     this.bigRabbit.object.scale.set(200, 200, 200);
-    this.bigRabbit.object.position.set(0, 1500, -6000);
-    this.bigRabbit.object.lookAt(0, this.bigRabbit.object.position.y, 0);
+    this.bigRabbit.object.position.set(this.positionX, 1500, this.positionZ - 6000);
+    this.bigRabbit.object.lookAt(this.positionX, this.bigRabbit.object.position.y, this.positionZ);
 
     this.scene.add(this.bigRabbit.object);
 

@@ -78,10 +78,10 @@ var RabbitControls = function ( rabbit, camera, domElement ) {
 	this.noEventInterval;
 
 	// Limit Object
-	this.limitMaxX = 1980;
-	this.limitMinX = -1980;
-	this.limitMaxZ = 1480;
-	this.limitMinZ = -1480;
+	this.limitMaxX = 3980;
+	this.limitMinX = 20;
+	this.limitMaxZ = 2980;
+	this.limitMinZ = 20;
 
 	// Jump
 	this.objectJump = false;

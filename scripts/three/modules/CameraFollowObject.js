@@ -67,10 +67,8 @@ var CameraFollowObject = function ( camera, objectToFollow ) {
 
         this.cameraAttached = false;
 
-        //this.objectCameraDetection.getWorldPosition(this.cameraWorldPosition);
         this.object.remove(this.camera);
-        this.camera.position.set(0, 500, -2500);
-        this.camera.lookAt(0, 500, 0);
+        this.camera.position.set(2000, 500, -1500);
     }
 
     this.update = function() {

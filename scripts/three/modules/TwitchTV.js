@@ -9,9 +9,9 @@ var TwitchTV = function(channel) {
     this.width = 1920;
     this.height = 1080;
     this.position = {
-        x: 0,
+        x: 2000,
         y: 690,
-        z: 2100
+        z: 3600
     };
 
     if(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)){
