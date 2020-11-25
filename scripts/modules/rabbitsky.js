@@ -81,6 +81,7 @@ var RabbitSky = function(embedType, embedID, embedChat) {
     this.chatEmbedBox.style.bottom = 0;
     this.chatEmbedBox.style.right = 0;
     this.chatEmbedBox.style.width = this.chatEmbedWidth + "px";
+    this.chatEmbedBox.style.backgroundColor = "#18181b";
     document.body.appendChild(this.chatEmbedBox);
 
     this.chatEmbedResizeState = false;
