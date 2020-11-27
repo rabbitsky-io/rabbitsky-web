@@ -74,24 +74,24 @@ var loadingDom = document.getElementById("loading-progress");
 function checkReady(num) {
     switch(num) {
         case 0:
+            loadingDom.innerHTML = "Loading Font...";
             if(!font.isReady()) {
-                loadingDom.innerHTML = "Loading Font...";
                 setTimeout(function() { checkReady(num) }, 500);
             } else {
                 checkReady(num+1);
             }
             break;
         case 1:
+            loadingDom.innerHTML = "Loading Chat Filter...";
             if(!chatFilter.isReady()) {
-                loadingDom.innerHTML = "Loading Chat Filter...";
                 setTimeout(function() { checkReady(num) }, 500);
             } else {
                 checkReady(num+1);
             }
             break;
         case 2:
+            loadingDom.innerHTML = "Loading Configurations...";
             if(!config.isReady()) {
-                loadingDom.innerHTML = "Loading Configurations...";
                 setTimeout(function() { checkReady(num) }, 500);
             } else {
                 var checkError = config.checkError();
@@ -126,8 +126,8 @@ function checkReady(num) {
             }
             break;
         case 3:
+            loadingDom.innerHTML = "Loading Dance Floor...";
             if(!rabbitSky.isReady()) {
-                loadingDom.innerHTML = "Loading Dance Floor...";
                 setTimeout(function() { checkReady(num) }, 500);
             } else {
                 checkReady(num+1);
@@ -145,6 +145,11 @@ function checkReady(num) {
                 rabbitSky.controls.movementSpeed = rabbitSky.controls.movementSpeed / 1.5;
                 rabbitSky.controls.lookSpeed = rabbitSky.controls.lookSpeed / 1.5;
             }
+
+            /* For Gamepad */
+            rabbitSky.gamepadController.uiShowVolume = showVolume;
+            rabbitSky.gamepadController.uiToggleEmbedChat = toggleEmbedChat;
+            rabbitSky.gamepadController.uiToggleAll = toggleUI;
 
             initListenAll();
             channelLoad();
@@ -336,7 +341,6 @@ function generalStartAnimation() {
     document.getElementById("customize-button-popup").classList.add("none");
 
     /* If mobile, vol max and unmute */
-    /* If not, show help button! */
     if(isMobile) {
         rabbitSky.embed.unmute();
         rabbitSky.embed.setVolume(100);
@@ -386,6 +390,12 @@ function initFirstHelpPopup() {
     }
 
     document.getElementById("game-first-info").classList.remove("none");
+
+    // Gamepad Listener
+    rabbitSky.gamepadController.uiHideFirstHelp = function() {
+        document.getElementById("game-first-info").classList.add("none");
+        rabbitSky.gamepadController.uiHideFirstHelp = undefined;
+    };
 
     window.addEventListener("keydown", function exitGameFirstInfo(evt){
         switch ( evt.key ) {

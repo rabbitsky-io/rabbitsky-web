@@ -23,6 +23,7 @@ import { WebSocketHandler } from '../three/modules/WebSocketHandler.js';
 import { RectAreaLightUniformsLib } from '../three/modules/RectAreaLightUniformsLib.js';
 import { YouTubeLive } from '../three/modules/YouTubeLive.js';
 import { FPS } from './fps.js';
+import { GamepadController } from '../three/modules/GamepadController.js';
 
 // Init Rect Area Light
 RectAreaLightUniformsLib.init();
@@ -200,6 +201,9 @@ var RabbitSky = function(embedType, embedID, embedChat) {
 
     // Object Control
     this.controls = new RabbitControls(this.mainRabbit, this.camera, this.rendererScreen.domElement);
+
+    // Gamepad Controller Handler
+    this.gamepadController = new GamepadController(this.controls, this.cameraRabbit, this.embed);
 
     // Lighting global
     this.lightTop = new HemisphereLight( 0xffffff, 0x000000, 1 );
@@ -583,6 +587,7 @@ var RabbitSky = function(embedType, embedID, embedChat) {
 
         this.wsHandler.updateAnimation(getAnimationDelta);
 
+        this.gamepadController.update();
         this.controls.update(getAnimationDelta);
         this.stage.update(getAnimationDelta);
         this.cameraRabbit.update();
