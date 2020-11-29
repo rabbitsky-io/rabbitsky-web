@@ -1,6 +1,7 @@
 # Rabbit Sky Client Changelog
 
 ## Version 0.1.6.1
+- This version is compatible with Server v0.1.6
 - Fix a bug when rejoin from back to menu button, it will sent an error, but actually it is connected.
 - Fix CSS Outline on Link.
 
