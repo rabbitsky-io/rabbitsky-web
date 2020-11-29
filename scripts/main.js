@@ -922,8 +922,8 @@ function initListenAll() {
     });
 
     document.getElementById("confirm-exit-yes").addEventListener('click', function(){
-        backToMenu();
         rabbitSky.disconnect(true);
+        backToMenu();
     });
 
     document.getElementById("help-button").addEventListener('click', function(){
