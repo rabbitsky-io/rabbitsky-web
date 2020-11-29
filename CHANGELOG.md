@@ -1,5 +1,12 @@
 # Rabbit Sky Client Changelog
 
+## Version 0.1.6
+- Full Support of Gamepad Controller (Beta).
+- Add `/fly` handler.
+- Add Player Detection Handler.
+- Change Menu UI.
+- Add Options Button and Back To Menu button in-game.
+
 ## Version 0.1.5.1
 - This version is compatible with Server v0.1.5
 - Adding gamepad controller (Beta)

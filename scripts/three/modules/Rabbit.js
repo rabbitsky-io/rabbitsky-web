@@ -84,6 +84,8 @@ var Rabbit = function(h, s, l, eyeR, eyeG, eyeB) {
 
     this.isDuck = false;
 
+    this.canFly = false;
+
     this.lookX = 0;
     this.lookY = 0;
     this.lookZ = 0;

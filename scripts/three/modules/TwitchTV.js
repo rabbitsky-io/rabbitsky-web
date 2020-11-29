@@ -91,9 +91,13 @@ var TwitchTV = function(channel) {
         this.pause();
     };
 
+    this.isPaused = function() {
+        return this.player.isPaused();
+    };
+
     this.togglePause = function() {
         if(this.ready) {
-            if(this.player.isPaused()) {
+            if(this.isPaused()) {
                 this.play();
             } else {
                 this.pause();

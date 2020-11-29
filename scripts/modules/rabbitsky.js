@@ -12,7 +12,7 @@ import {
     BackSide
 } from '../three/three.module.js';
 
-import { CameraFollowObject } from '../three/modules/CameraFollowObject.js';
+import { CameraFollowRabbit } from '../three/modules/CameraFollowRabbit.js';
 import { CSS3DRenderer } from '../three/modules/CSS3DRenderer.js';
 import { Floor } from '../three/modules/Floor.js';
 import { Stage } from '../three/modules/Stage.js';
@@ -23,7 +23,6 @@ import { WebSocketHandler } from '../three/modules/WebSocketHandler.js';
 import { RectAreaLightUniformsLib } from '../three/modules/RectAreaLightUniformsLib.js';
 import { YouTubeLive } from '../three/modules/YouTubeLive.js';
 import { FPS } from './fps.js';
-import { GamepadController } from '../three/modules/GamepadController.js';
 
 // Init Rect Area Light
 RectAreaLightUniformsLib.init();
@@ -44,6 +43,12 @@ var RabbitSky = function(embedType, embedID, embedChat) {
     this.sceneBackground = new Scene();
     this.sceneScreen = new Scene();
     this.sceneFloor = new Scene();
+
+    // For Gamepad Update
+    this.gamepadControllerUpdate;
+
+    // Status Showing
+    this.isShowingEmbed = false;
 
     // That
     var that = this;
@@ -196,14 +201,11 @@ var RabbitSky = function(embedType, embedID, embedChat) {
     this.camera = new PerspectiveCamera(60, (window.innerWidth - this.chatEmbedWidth) / window.innerHeight, 1, 50000);
 
     // Camera Follow Rabbit
-    this.cameraRabbit = new CameraFollowObject(this.camera, this.mainRabbit.object);
+    this.cameraRabbit = new CameraFollowRabbit(this.camera, this.mainRabbit);
     this.sceneFloor.add(this.cameraRabbit.object);
 
     // Object Control
     this.controls = new RabbitControls(this.mainRabbit, this.camera, this.rendererScreen.domElement);
-
-    // Gamepad Controller Handler
-    this.gamepadController = new GamepadController(this.controls, this.cameraRabbit, this.embed);
 
     // Lighting global
     this.lightTop = new HemisphereLight( 0xffffff, 0x000000, 1 );
@@ -287,11 +289,21 @@ var RabbitSky = function(embedType, embedID, embedChat) {
         }
     }
 
+    this.isAnimating = function() {
+        if(typeof this.animationID === 'undefined') {
+            return false;
+        }
+
+        return true
+    }
+
     this.show = function() {
         this.colorBackground.style.display = "block";
         this.rendererBackground.domElement.style.display = "block";
         this.rendererScreen.domElement.style.display = "block";
         this.rendererFloor.domElement.style.display = "block";
+
+        this.isShowingEmbed = true;
     }
 
     this.hide = function() {
@@ -299,6 +311,8 @@ var RabbitSky = function(embedType, embedID, embedChat) {
         this.rendererBackground.domElement.style.display = "none";
         this.rendererScreen.domElement.style.display = "none";
         this.rendererFloor.domElement.style.display = "none";
+
+        this.isShowingEmbed = false;
     }
 
     this.showChat = function() {
@@ -365,11 +379,7 @@ var RabbitSky = function(embedType, embedID, embedChat) {
     }
 
     this.isShowing = function(){
-        if(this.rendererFloor.domElement.style.display == "none") {
-            return false;
-        }
-
-        return true;
+        return this.isShowingEmbed;
     }
 
     this.focus = function() {
@@ -406,33 +416,20 @@ var RabbitSky = function(embedType, embedID, embedChat) {
         this.domContainer = dom;
     }
 
-    this.createRenderer = function(zIndex, antialias, display, pixelRatio) {
-        if(typeof zIndex === "undefined") {
-            zIndex = 1;
+    this.cloneRendererAA = function(oldRenderer, antialias) {
+        if(typeof oldRenderer === "undefined") {
+            return oldRenderer;
         }
 
         if(typeof antialias === "undefined") {
             antialias = false;
         }
 
-        if(typeof display === "undefined") {
-            display = "none";
-        }
-
-        if(typeof pixelRatio === "undefined") {
-            pixelRatio = window.devicePixelRatio;
-        }
-
         var renderer = new WebGLRenderer({ alpha: true, antialias: antialias });
-        renderer.setClearColor(0xffffff, 0);
-        renderer.setPixelRatio( pixelRatio );
+        renderer.setClearColor( oldRenderer.getClearColor(), oldRenderer.getClearAlpha() );
+        renderer.setPixelRatio( oldRenderer.getPixelRatio() );
         renderer.setSize( window.innerWidth - this.chatEmbedWidth, window.innerHeight );
-        renderer.domElement.style.position = "absolute";
-        renderer.domElement.style.display = display;
-        renderer.domElement.style.top = 0;
-        renderer.domElement.style.left = 0;
-        renderer.domElement.style.zIndex = zIndex;
-        renderer.domElement.style.pointerEvents = "none";
+        renderer.domElement.style.cssText = oldRenderer.domElement.style.cssText;
         document.body.appendChild( renderer.domElement );
 
         return renderer;
@@ -452,12 +449,13 @@ var RabbitSky = function(embedType, embedID, embedChat) {
 
                 case "setting-disable-antialias":
                     var tempRendererBackground = this.rendererBackground;
-                    this.rendererBackground = this.createRenderer(this.rendererBackground.domElement.style.zIndex, false, this.rendererBackground.domElement.style.display, this.rendererBackground.getPixelRatio());
+                    this.rendererBackground = this.cloneRendererAA(tempRendererBackground, false);
                     this.destroyRenderer(tempRendererBackground);
 
                     var tempRendererFloor = this.rendererFloor;
-                    this.rendererFloor = this.createRenderer(this.rendererFloor.domElement.style.zIndex, false, this.rendererFloor.domElement.style.display, this.rendererFloor.getPixelRatio());
+                    this.rendererFloor = this.cloneRendererAA(tempRendererFloor, false);
                     this.destroyRenderer(tempRendererFloor);
+
                     break;
 
                 case "setting-low-scale":
@@ -507,11 +505,11 @@ var RabbitSky = function(embedType, embedID, embedChat) {
 
                 case "setting-disable-antialias":
                     var tempRendererBackground = this.rendererBackground;
-                    this.rendererBackground = this.createRenderer(this.rendererBackground.domElement.style.zIndex, true, this.rendererBackground.domElement.style.display, this.rendererBackground.getPixelRatio());
+                    this.rendererBackground = this.cloneRendererAA(tempRendererBackground, true);
                     this.destroyRenderer(tempRendererBackground);
 
                     var tempRendererFloor = this.rendererFloor;
-                    this.rendererFloor = this.createRenderer(this.rendererFloor.domElement.style.zIndex, true, this.rendererFloor.domElement.style.display, this.rendererFloor.getPixelRatio());
+                    this.rendererFloor = this.cloneRendererAA(tempRendererFloor, true);
                     this.destroyRenderer(tempRendererFloor);
                     break;
 
@@ -587,7 +585,10 @@ var RabbitSky = function(embedType, embedID, embedChat) {
 
         this.wsHandler.updateAnimation(getAnimationDelta);
 
-        this.gamepadController.update();
+        if(typeof this.gamepadControllerUpdate !== 'undefined') {
+            this.gamepadControllerUpdate();
+        }
+
         this.controls.update(getAnimationDelta);
         this.stage.update(getAnimationDelta);
         this.cameraRabbit.update();

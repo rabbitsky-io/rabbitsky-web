@@ -2,10 +2,11 @@ import {
 	Object3D, Vector3,
 } from "../three.module.js";
 
-var CameraFollowObject = function ( camera, objectToFollow ) {
+var CameraFollowRabbit = function ( camera, rabbit ) {
 
     this.camera = camera;
-    this.objectToFollow = objectToFollow;
+    this.rabbit = rabbit;
+    this.objectToFollow = this.rabbit.object;
 
     this.cameraAttached = true;
 
@@ -76,7 +77,13 @@ var CameraFollowObject = function ( camera, objectToFollow ) {
             return;
         }
 
-        this.object.position.set(this.objectToFollow.position.x, this.objectCameraInitPosition.y, this.objectToFollow.position.z);
+        var posY = this.objectCameraInitPosition.y;
+
+        if(this.rabbit.canFly) {
+            posY = this.objectCameraInitPosition.y = this.objectToFollow.position.y;
+        }
+
+        this.object.position.set(this.objectToFollow.position.x, posY, this.objectToFollow.position.z);
         this.object.rotation.set(this.objectToFollow.rotation.x, this.objectToFollow.rotation.y, this.objectToFollow.rotation.z, this.objectToFollow.rotation.order);
 
         this.objectCameraDetection.getWorldPosition(this.cameraWorldPosition);
@@ -119,4 +126,4 @@ var CameraFollowObject = function ( camera, objectToFollow ) {
 
 };
 
-export { CameraFollowObject };
+export { CameraFollowRabbit };

@@ -101,7 +101,7 @@ var FgEmojiPicker = function(options) {
                     width: 250px;
                     min-height: 200px;
                     background-color: rgba(72, 87, 181, 0.75);
-                    border: 2px solid rgba(255,255,255,0.25);
+                    box-shadow: -2px 2px #FFFFFF;
                     overflow: hidden;
                 }
 
@@ -246,17 +246,32 @@ var FgEmojiPicker = function(options) {
             const picker = document.querySelector('.fg-emoji-picker');
 
             if (!el.closest('.fg-emoji-picker')) picker ? picker.remove() : false;
-            this.emojiItems = undefined
+
+            this.emojiItems = undefined;
         },
 
         removeAllEmojiPicker() {
             const picker = document.querySelectorAll('.fg-emoji-picker');
 
             for(var i = 0; i < picker.length; i++) {
+
                 picker[i].remove();
+
             }
 
-            this.emojiItems = undefined
+            this.emojiItems = undefined;
+        },
+
+        isEmojiPickerVisible() {
+            const picker = document.querySelectorAll('.fg-emoji-picker');
+
+            if(picker.length > 0) {
+
+                return true;
+
+            }
+
+            return false;
         },
 
         emitEmoji(e) {

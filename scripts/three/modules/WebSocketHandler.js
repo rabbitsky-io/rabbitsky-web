@@ -1,5 +1,5 @@
 import {
-    Clock, MathUtils
+    Clock
 } from "../three.module.js";
 
 import {
@@ -24,7 +24,7 @@ var WebSocketHandler = function(rabbit, floor) {
 
     this.connected = false;
     this.disconnectedReason = "";
-
+    this.disconnectByUser = false;
 
     // We don't really need float tho
     this.floatToInt = function(float) {
@@ -90,7 +90,11 @@ var WebSocketHandler = function(rabbit, floor) {
         this.bindEvents();
     };
 
-    this.disconnect = function() {
+    this.disconnect = function(isUser) {
+        if(typeof isUser !== 'undefined' && isUser){
+            this.disconnectByUser = true;
+        }
+
         this.wsConn.close();
     };
 
@@ -107,12 +111,21 @@ var WebSocketHandler = function(rabbit, floor) {
                 return
             }
 
-            if(wsHandler.disconnectedReason == "") {
-                wsHandler.disconnectedReason = "Timed out";
-            }
+            if(this.disconnectByUser) {
 
-            if(typeof wsHandler.disconnectHandler !== 'undefined') {
-                wsHandler.disconnectHandler();
+                // Do nothing but change var value
+                this.disconnectByUser = false;
+
+            } else {
+
+                if(wsHandler.disconnectedReason == "") {
+                    wsHandler.disconnectedReason = "Timed out";
+                }
+
+                if(typeof wsHandler.disconnectHandler !== 'undefined') {
+                    wsHandler.disconnectHandler();
+                }
+
             }
         };
 
@@ -318,175 +331,191 @@ var WebSocketHandler = function(rabbit, floor) {
                 continue;
             }
 
-            if(message.length > 1) {
-                var messageID = message.charAt(0);
+            var messageID = message.charAt(0);
 
-                switch(messageID) {
-                    case "0":
-                        var messageData = message.substr(1);
-                        if (messageData == "") {
-                            break;
-                        }
-
-                        this.rabbitID = messageData;
-                        this.connected = true;
-                        this.sendInit();
+            switch(messageID) {
+                case "0":
+                    var messageData = message.substr(1);
+                    if (messageData == "") {
                         break;
-                    case "1":
-                        var messageData = message.substr(1);
-                        if (messageData == "") {
-                            break;
-                        }
+                    }
 
-                        var regexGroup = messageData.match(this.regexParseRabbit).groups;
-                        if(typeof regexGroup.id === undefined) {
-                            break;
-                        }
-
-                        var rabbitData = {
-                            id: regexGroup.id,
-
-                            // Colors
-                            h: (regexGroup.colorh) ? regexGroup.colorh : '',
-                            s: (regexGroup.colors) ? regexGroup.colors : '',
-                            l: (regexGroup.colorl) ? regexGroup.colorl : '',
-
-                            // Position
-                            x: (regexGroup.posx) ? regexGroup.posx : '',
-                            y: (regexGroup.posy) ? regexGroup.posy : '',
-                            z: (regexGroup.posz) ? regexGroup.posz : '',
-
-                            // Look At
-                            lookX: (regexGroup.lookx) ? regexGroup.lookx : '',
-                            lookY: (regexGroup.looky) ? regexGroup.looky : '',
-                            lookZ: (regexGroup.lookz) ? regexGroup.lookz : '',
-
-                            isDuck: (regexGroup.duck && regexGroup.duck == '1') ? true : false
-                        };
-
-                        this.addRabbit(rabbitData);
-
+                    this.rabbitID = messageData;
+                    this.connected = true;
+                    this.sendInit();
+                    break;
+                case "1":
+                    var messageData = message.substr(1);
+                    if (messageData == "") {
                         break;
-                    case "2":
-                        var messageData = message.substr(1);
-                        if (messageData == "") {
-                            break;
-                        }
+                    }
 
-                        var regexGroup = messageData.match(this.regexParseRabbit).groups;
-                        if(typeof regexGroup.id === undefined) {
-                            break;
-                        }
-
-                        var rabbitData = {
-                            id: regexGroup.id,
-
-                            // Colors
-                            h: (regexGroup.colorh) ? regexGroup.colorh : '',
-                            s: (regexGroup.colors) ? regexGroup.colors : '',
-                            l: (regexGroup.colorl) ? regexGroup.colorl : '',
-
-                            // Position
-                            x: (regexGroup.posx) ? regexGroup.posx : '',
-                            y: (regexGroup.posy) ? regexGroup.posy : '',
-                            z: (regexGroup.posz) ? regexGroup.posz : '',
-
-                            // Look At
-                            lookX: (regexGroup.lookx) ? regexGroup.lookx : '',
-                            lookY: (regexGroup.looky) ? regexGroup.looky : '',
-                            lookZ: (regexGroup.lookz) ? regexGroup.lookz : '',
-
-                            isDuck: (regexGroup.duck) ? regexGroup.duck : '',
-
-                            chat: (regexGroup.chat) ? regexGroup.chat : ''
-                        };
-
-                        this.updateRabbit(rabbitData);
-
+                    var regexGroup = messageData.match(this.regexParseRabbit).groups;
+                    if(typeof regexGroup.id === undefined) {
                         break;
-                    case "3":
-                        var messageData = message.substr(1);
-                        if (messageData == "") {
-                            break;
-                        }
+                    }
 
-                        this.removeRabbit(messageData);
+                    var rabbitData = {
+                        id: regexGroup.id,
+
+                        // Colors
+                        h: (regexGroup.colorh) ? regexGroup.colorh : '',
+                        s: (regexGroup.colors) ? regexGroup.colors : '',
+                        l: (regexGroup.colorl) ? regexGroup.colorl : '',
+
+                        // Position
+                        x: (regexGroup.posx) ? regexGroup.posx : '',
+                        y: (regexGroup.posy) ? regexGroup.posy : '',
+                        z: (regexGroup.posz) ? regexGroup.posz : '',
+
+                        // Look At
+                        lookX: (regexGroup.lookx) ? regexGroup.lookx : '',
+                        lookY: (regexGroup.looky) ? regexGroup.looky : '',
+                        lookZ: (regexGroup.lookz) ? regexGroup.lookz : '',
+
+                        isDuck: (regexGroup.duck && regexGroup.duck == '1') ? true : false
+                    };
+
+                    this.addRabbit(rabbitData);
+
+                    break;
+                case "2":
+                    var messageData = message.substr(1);
+                    if (messageData == "") {
                         break;
-                    case "9":
-                        var messageData = message.substr(1);
-                        if (messageData == "") {
-                            break;
-                        }
+                    }
 
-                        this.disconnectedReason = messageData;
+                    var regexGroup = messageData.match(this.regexParseRabbit).groups;
+                    if(typeof regexGroup.id === undefined) {
                         break;
-                    case "R":
-                        var messageData = message.substr(1);
-                        if (messageData == "") {
-                            break;
-                        }
+                    }
 
-                        this.urlRedirect = messageData;
+                    var rabbitData = {
+                        id: regexGroup.id,
+
+                        // Colors
+                        h: (regexGroup.colorh) ? regexGroup.colorh : '',
+                        s: (regexGroup.colors) ? regexGroup.colors : '',
+                        l: (regexGroup.colorl) ? regexGroup.colorl : '',
+
+                        // Position
+                        x: (regexGroup.posx) ? regexGroup.posx : '',
+                        y: (regexGroup.posy) ? regexGroup.posy : '',
+                        z: (regexGroup.posz) ? regexGroup.posz : '',
+
+                        // Look At
+                        lookX: (regexGroup.lookx) ? regexGroup.lookx : '',
+                        lookY: (regexGroup.looky) ? regexGroup.looky : '',
+                        lookZ: (regexGroup.lookz) ? regexGroup.lookz : '',
+
+                        isDuck: (regexGroup.duck) ? regexGroup.duck : '',
+
+                        chat: (regexGroup.chat) ? regexGroup.chat : ''
+                    };
+
+                    this.updateRabbit(rabbitData);
+
+                    break;
+                case "3":
+                    var messageData = message.substr(1);
+                    if (messageData == "") {
                         break;
-                    case "S":
-                        var messageData = message.substr(1);
-                        if (messageData == "") {
+                    }
+
+                    this.removeRabbit(messageData);
+                    break;
+                case "9":
+                    var messageData = message.substr(1);
+                    if (messageData == "") {
+                        break;
+                    }
+
+                    if (messageData == "PAGERELOAD") {
+                        location.reload();
+                        break;
+                    }
+
+                    this.disconnectedReason = messageData;
+                    break;
+                case "R":
+                    var messageData = message.substr(1);
+                    if (messageData == "") {
+                        break;
+                    }
+
+                    this.urlRedirect = messageData;
+                    break;
+                case "F":
+                    var messageData = message.substr(1);
+                    if (messageData == "") {
+                        break;
+                    }
+
+                    if (messageData == "1") {
+                        this.rabbit.canFly = true;
+                    } else {
+                        this.rabbit.canFly = false;
+                    }
+
+                    break;
+                case "S":
+                    var messageData = message.substr(1);
+                    if (messageData == "") {
+                        break;
+                    }
+
+                    var skyType = messageData.charAt(0);
+                    if (skyType == "F") {
+                        var skyData = messageData.substr(1);
+                        if(skyData == "") {
                             break;
                         }
 
-                        var skyType = messageData.charAt(0);
-                        if (skyType == "F") {
-                            var skyData = messageData.substr(1);
-                            if(skyData == "") {
-                                break;
-                            }
+                        var splitSkyData = this.parseMessageSplitter(skyData, ",");
+                        if(splitSkyData.length < 3) {
+                            break;
+                        }
 
-                            var splitSkyData = this.parseMessageSplitter(skyData, ",");
-                            if(splitSkyData.length < 3) {
-                                break;
-                            }
+                        var time = splitSkyData[0];
+                        if(time < 100) {
+                            time = 100;
+                        }
 
-                            var time = splitSkyData[0];
-                            if(time < 100) {
-                                time = 100;
-                            }
+                        var timeTransition = splitSkyData[1];
+                        if (timeTransition > (time - 50)) {
+                            timeTransition = (time - 50);
+                        }
 
-                            var timeTransition = splitSkyData[1];
-                            if (timeTransition > (time - 50)) {
-                                timeTransition = (time - 50);
-                            }
+                        var colors = splitSkyData.slice(2);
 
-                            var colors = splitSkyData.slice(2);
+                        if(colors.length > 1) {
+                            var that = this;
+                            clearInterval(this.backgroundTimeout);
+                            this.backgroundTimeout = setTimeout(function() { that.backgroundFlash(time, timeTransition, colors, 0) }, time);
+                        }
+                    } else {
+                        var skyData = messageData.substr(1);
+                        if(skyData == "") {
+                            break;
+                        }
 
-                            if(colors.length > 1) {
-                                var that = this;
+                        if(typeof this.backgroundDom !== 'undefined') {
+                            if(typeof this.backgroundTimeout !== 'undefined') {
                                 clearInterval(this.backgroundTimeout);
-                                this.backgroundTimeout = setTimeout(function() { that.backgroundFlash(time, timeTransition, colors, 0) }, time);
-                            }
-                        } else {
-                            var skyData = messageData.substr(1);
-                            if(skyData == "") {
-                                break;
+                                this.backgroundTimeout = undefined;
                             }
 
-                            if(typeof this.backgroundDom !== 'undefined') {
-                                if(typeof this.backgroundTimeout !== 'undefined') {
-                                    clearInterval(this.backgroundTimeout);
-                                    this.backgroundTimeout = undefined;
-                                }
-
-                                var changeColor = skyData;
-                                if(changeColor == "default") {
-                                    changeColor = "#4857b5";
-                                }
-
-                                this.backgroundDom.style.backgroundColor = changeColor;
-                                this.backgroundDom.style.transition = "background-color 2s ease-in-out";
+                            var changeColor = skyData;
+                            if(changeColor == "default") {
+                                changeColor = "#4857b5";
                             }
+
+                            this.backgroundDom.style.backgroundColor = changeColor;
+                            this.backgroundDom.style.transition = "background-color 2s ease-in-out";
                         }
+                    }
 
-                        break;
-                }
+                    break;
             }
         }
 

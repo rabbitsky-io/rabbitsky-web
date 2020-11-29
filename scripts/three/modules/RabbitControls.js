@@ -88,6 +88,7 @@ var RabbitControls = function ( rabbit, camera, domElement ) {
 	this.objectJumpStatus = 0;
 	this.jumpMax = 30;
 	this.jumpSpeed = 120;
+	this.yBeforeJump;
 
 	// Bobbing
 	this.objectBobbing = 0;
@@ -242,8 +243,8 @@ var RabbitControls = function ( rabbit, camera, domElement ) {
 			case 37: /*left*/ this.mouseX = -200; break;
 			case 39: /*right*/ this.mouseX = 200; break;
 
-			case 69: /* E */ if (this.isMovingCamera) { this.moveUp = true; } break;
-			case 81: /* Q */ if (this.isMovingCamera) { this.moveDown = true; } break;
+			case 69: /* E */ if (this.isMovingCamera || this.rabbit.canFly) { this.moveUp = true; } break;
+			case 81: /* Q */ if (this.isMovingCamera || this.rabbit.canFly) { this.moveDown = true; } break;
 
 			case 32: /*spacebar*/ (this.isMovingCamera) ? this.moveUp = true : this.objectJump = true; break;
 			case 17: /*leftctrl*/ (this.isMovingCamera) ? this.moveDown = true : this.objectDuck = true; break;
@@ -266,8 +267,8 @@ var RabbitControls = function ( rabbit, camera, domElement ) {
 			case 37: /*left*/
 			case 39: /*right*/ this.mouseX = 0; break;
 
-			case 69: /* E */ if (this.isMovingCamera) { this.moveUp = false; } break;
-			case 81: /* Q */ if (this.isMovingCamera) { this.moveDown = false; } break;
+			case 69: /* E */ if (this.isMovingCamera || this.rabbit.canFly) { this.moveUp = false; } break;
+			case 81: /* Q */ if (this.isMovingCamera || this.rabbit.canFly) { this.moveDown = false; } break;
 
 			case 32: /*spacebar*/ if (this.isMovingCamera) { this.moveUp = false; } break;
 			case 17: /*leftctrl*/ (this.isMovingCamera) ? this.moveDown = false : this.objectDuck = false; break;
@@ -389,53 +390,65 @@ var RabbitControls = function ( rabbit, camera, domElement ) {
 
 			if ( this.moveForward ) {
 				this.object.translateZ( actualMoveSpeed );
-				this.object.position.setY(objectCurrentY); // Force!
             }
 
 			if ( this.moveBackward ) {
                 this.object.translateZ( - actualMoveSpeed );
-				this.object.position.setY(objectCurrentY); // Force!
             }
 
             if ( this.moveLeft ) {
                 this.object.translateX( actualMoveSpeed );
-				this.object.position.setY(objectCurrentY); // Force!
             }
 
 			if ( this.moveRight ) {
                 this.object.translateX( - actualMoveSpeed );
-				this.object.position.setY(objectCurrentY); // Force!
-            }
+			}
 
-            /* Vertical move is not allowed here
-             *
-			 * if ( this.moveUp ) this.object.translateY( actualMoveSpeed );
-             * if ( this.moveDown ) this.object.translateY( - actualMoveSpeed );
-             */
 
-			// Process Y here
+			if(this.rabbit.canFly) {
+
+				if ( this.moveUp ) this.object.translateY( actualMoveSpeed );
+				if ( this.moveDown ) this.object.translateY( - actualMoveSpeed );
+
+				this.objectInitPosition = this.object.position.clone();
+
+				if( typeof this.yBeforeJump !== 'undefined' && ( this.moveForward || this.moveBackward || this.moveLeft || this.moveRight || this.moveUp || this.moveDown ) ) {
+					this.objectJump = false;
+					this.objectJumpStatus = 0;
+					this.yBeforeJump = undefined;
+				}
+
+			} else if( this.moveForward || this.moveBackward || this.moveLeft || this.moveRight ) {
+
+				this.object.position.setY( objectCurrentY );
+
+			}
+
 			// Check if jump first, if not jumping, do the bob
 			if( this.objectJump ) {
 
 				// if finish jumping, set position to init
-				if( this.objectJumpStatus == 1 && this.object.position.y <= this.objectInitPosition.y ) {
+				if( this.objectJumpStatus == 1 && this.object.position.y <= this.yBeforeJump ) {
+					this.object.position.setY( this.yBeforeJump );
 
 					this.objectJump = false;
 					this.objectJumpStatus = 0;
-
-					this.object.position.setY( this.objectInitPosition.y );
+					this.yBeforeJump = undefined;
 
 				} else {
 
-					if ( this.objectJumpStatus == 0 && this.object.position.y >= ( this.objectInitPosition.y + this.jumpMax ) ) {
+					if ( this.objectJumpStatus == 0 && this.object.position.y >= ( this.yBeforeJump + this.jumpMax ) ) {
 
 						this.objectJumpStatus = 1;
 
-						this.object.position.setY( this.objectInitPosition.y + this.jumpMax );
+						this.object.position.setY( this.yBeforeJump + this.jumpMax );
 
 					}
 
 					if(this.objectJumpStatus == 0) {
+						if(typeof this.yBeforeJump === 'undefined') {
+							this.yBeforeJump = this.object.position.y;
+						}
 
 						this.object.position.setY( this.object.position.y + (delta * this.jumpSpeed) );
 
@@ -447,7 +460,7 @@ var RabbitControls = function ( rabbit, camera, domElement ) {
 
 				}
 
-			} else if ( this.moveForward || this.moveBackward || this.moveLeft || this.moveRight ) {
+			} else if ( !this.rabbit.canFly && ( this.moveForward || this.moveBackward || this.moveLeft || this.moveRight ) ) {
 
 				// Bobbing status save to memory so it knows when to bob up and down
 				if( objectCurrentY <= this.objectInitPosition.y ) {
@@ -475,24 +488,28 @@ var RabbitControls = function ( rabbit, camera, domElement ) {
 			// Duck
 			this.rabbit.duck(this.objectDuck);
 
-			// Limit Position
-			if (this.object.position.x >= this.limitMaxX) {
+			// Limit Position If Not Flying
+			if ( !this.rabbit.canFly ) {
 
-				this.object.position.setX(this.limitMaxX);
+				if (this.object.position.x >= this.limitMaxX) {
 
-			} else if (this.object.position.x <= this.limitMinX) {
+					this.object.position.setX(this.limitMaxX);
 
-				this.object.position.setX(this.limitMinX);
+				} else if (this.object.position.x <= this.limitMinX) {
 
-			}
+					this.object.position.setX(this.limitMinX);
 
-			if (this.object.position.z >= this.limitMaxZ) {
+				}
 
-				this.object.position.setZ(this.limitMaxZ);
+				if (this.object.position.z >= this.limitMaxZ) {
 
-			} else if (this.object.position.z <= this.limitMinZ) {
+					this.object.position.setZ(this.limitMaxZ);
 
-				this.object.position.setZ(this.limitMinZ);
+				} else if (this.object.position.z <= this.limitMinZ) {
+
+					this.object.position.setZ(this.limitMinZ);
+
+				}
 
 			}
 

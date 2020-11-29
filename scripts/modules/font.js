@@ -6,10 +6,10 @@ var Font = function() {
 
     WebFont.load({
         google: {
-            families: ['Press Start 2P']
+            families: [ 'Press Start 2P' ]
         },
         active: function() {
-            that.ready = true
+            that.ready = true;
         }
     });
 

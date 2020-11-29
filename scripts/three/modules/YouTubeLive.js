@@ -97,9 +97,13 @@ var YouTubeLive = function(ytid) {
         }
     };
 
+    this.isPaused = function() {
+        return this.player.getPlayerState() != 1;
+    };
+
     this.togglePause = function() {
         if(this.ready) {
-            if(this.player.getPlayerState() != 1) {
+            if(this.isPaused()) {
                 this.play();
             } else {
                 this.pause();

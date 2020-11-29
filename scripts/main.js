@@ -1,13 +1,19 @@
 import { Font } from "./modules/font.js"
-import { FgEmojiPicker } from "./modules/emoji/fgEmojiPicker.js"
+import { FgEmojiPicker } from "./modules/fgEmojiPicker.js"
 import { Config } from "./modules/config.js"
 import { ChatFilter } from "./modules/chatfilter.js"
 import { RabbitCustomizer } from "./modules/rabbitCustomizer.js"
 import { RabbitSky } from "./modules/rabbitsky.js"
+import { GamepadController } from "./modules/gamepadController.js"
+import {
+    PerspectiveCamera,
+    WebGLRenderer,
+} from './three/three.module.js';
 
 var font = new Font();
 var config = new Config();
 var chatFilter = new ChatFilter();
+var gamepadController = new GamepadController();
 var emojiPicker = new FgEmojiPicker({
     trigger: '#chat-emoji',
     dir: "./extras/",
@@ -70,12 +76,18 @@ if(window.devicePixelRatio > 1) {
 var connectionTimer;
 
 // Ready checker
+var fontCounter = 0;
 var loadingDom = document.getElementById("loading-progress");
 function checkReady(num) {
     switch(num) {
         case 0:
             loadingDom.innerHTML = "Loading Font...";
             if(!font.isReady()) {
+                fontCounter++;
+                if(fontCounter > 20) {
+                    location.reload();
+                }
+
                 setTimeout(function() { checkReady(num) }, 500);
             } else {
                 checkReady(num+1);
@@ -140,35 +152,35 @@ function checkReady(num) {
             rabbitSky.setDomContainer(document.getElementById("in-game-container"));
             rabbitSky.mainRabbit.setColor(rabbitCustomizer.rabbit.colorH, rabbitCustomizer.rabbit.colorS, rabbitCustomizer.rabbit.colorL);
 
+
+            /* Create Menu Background */
+            createMenuBackground();
+
             /* Slows down movement for mobile */
             if(isMobile) {
                 rabbitSky.controls.movementSpeed = rabbitSky.controls.movementSpeed / 1.5;
                 rabbitSky.controls.lookSpeed = rabbitSky.controls.lookSpeed / 1.5;
             }
 
-            /* For Gamepad */
-            rabbitSky.gamepadController.uiShowVolume = showVolume;
-            rabbitSky.gamepadController.uiToggleEmbedChat = toggleEmbedChat;
-            rabbitSky.gamepadController.uiToggleAll = toggleUI;
-
             initListenAll();
-            channelLoad();
             document.getElementById("loading").classList.add("none");
             document.getElementById("main-menu").classList.remove("none");
-            document.getElementById("settings-button").classList.remove("none");
-            document.getElementById("settings-button-popup").classList.remove("none");
-            document.getElementById("customize-button").classList.remove("none");
-            document.getElementById("customize-button-popup").classList.remove("none");
-            setTimeout(function(){
-                document.getElementById("settings-button-popup").classList.add("none");
-                document.getElementById("customize-button-popup").classList.add("none");
-            }, 6000);
+
+            /* For Gamepad */
+            gamepadController.init(rabbitSky);
+            gamepadController.startStandalone();
+            gamepadController.changeFocus("menu", document.getElementById("main-menu"))
+            gamepadController.uiShowVolume = showVolume;
+            gamepadController.uiToggleEmbedChat = toggleEmbedChat;
+            gamepadController.uiToggleUI = toggleUI;
+            gamepadController.uiSliderHandler = rabbitColorSliderChange;
+
             break;
     }
 }
 
 function fillChannel() {
-    var divDom = document.getElementById('main-menu-channel-list-dyn');
+    var divDom = document.getElementById('server-browser-channel-list-dyn');
 
     var html = "";
 
@@ -180,7 +192,7 @@ function fillChannel() {
             var wsScheme = (config.servers[i].secure) ? "wss://" : "ws://";
             var wsURL = wsScheme + config.servers[i].host;
 
-            html += '<div class="main-menu-channel connect-channel disabled" id="main-menu-channel-' + id + '" data-url="' + wsURL + '">';
+            html += '<div tabindex="-1" class="server-browser-channel connect-channel disabled" id="server-browser-channel-' + id + '" data-url="' + wsURL + '">';
             html += '    <div class="channel-name">';
             html += config.servers[i].name;
             html += '    </div>';
@@ -205,11 +217,12 @@ function fillChannel() {
 }
 
 function channelLoad() {
-    document.getElementById("main-menu-channel-loading").classList.remove("none");
+    document.getElementById("server-browser-channel-loading").classList.remove("none");
     document.getElementById("channel-refresh").classList.add('disabled');
 
     var connectDom = document.getElementsByClassName('connect-channel');
     for(var i = 0; i < connectDom.length; i++) {
+        connectDom[i].classList.remove('gamepad-focus');
         connectDom[i].classList.add('disabled');
     }
 
@@ -225,7 +238,7 @@ function checkPlayers() {
     var stillLoading = 0;
     for(var i = 0; i < config.servers.length; i++) {
         var domID = i + 1;
-        var dom = document.getElementById('main-menu-channel-' + domID);
+        var dom = document.getElementById('server-browser-channel-' + domID);
         if(dom.classList.contains('disabled')) {
             if(config.servers[i].fetching) {
                 stillLoading++;
@@ -235,6 +248,7 @@ function checkPlayers() {
                 if(config.servers[i].canJoin) {
                     document.getElementById('channel-join-button-' + domID).innerHTML = "JOIN";
                     document.getElementById('channel-ping-' + domID).innerHTML = (config.servers[i].ping) ? config.servers[i].ping + " ms" : "???";
+                    dom.classList.add('gamepad-focus');
                     dom.classList.remove('disabled');
                 } else {
                     if(config.servers[i].maxPlayers > 0) {
@@ -249,7 +263,8 @@ function checkPlayers() {
     }
 
     if(stillLoading <= 0) {
-        document.getElementById("main-menu-channel-loading").classList.add("none");
+        document.getElementById("server-browser-channel-loading").classList.add("none");
+        gamepadController.changeFocus("popup", document.getElementById("server-browser"));
     } else {
         setTimeout(checkPlayers, 100);
     }
@@ -258,6 +273,8 @@ function checkPlayers() {
 function connectChannel(wsURL){
     document.getElementById("main-menu").classList.add("none");
     document.getElementById("loadgame").classList.remove("none");
+    hidePopup();
+
     rabbitSky.connect(wsURL);
     connectionTimer = setTimeout(connectWebsocketCheck, 100);
 }
@@ -273,6 +290,7 @@ function connectWebsocketCheck() {
             document.getElementById("loadgame").classList.add("none");
             document.getElementById("connect-error-reason").innerHTML = getDisconnectReason;
             document.getElementById("error-connect").classList.remove("none");
+            gamepadController.changeFocus("menu", document.getElementById("error-connect"));
         } else {
             connectionTimer = setTimeout(connectWebsocketCheck, 100);
         }
@@ -325,20 +343,19 @@ function reconnectWebsocketCheck() {
 }
 
 function generalStartAnimation() {
+    gamepadController.stopStandalone();
+    gamepadController.changeFocus("game", rabbitSky.focusDom);
+
     rabbitSky.start();
     rabbitSky.show();
     rabbitSky.focus();
     rabbitSky.showEmbedChat();
 
+    showOptionsButton();
     showEmbedChatHideButton();
     showHelpButton();
     showChat();
     showTouchControl();
-
-    /* Remove all menu popup and customize button */
-    document.getElementById("customize-button").classList.add("none");
-    document.getElementById("settings-button-popup").classList.add("none");
-    document.getElementById("customize-button-popup").classList.add("none");
 
     /* If mobile, vol max and unmute */
     if(isMobile) {
@@ -358,22 +375,71 @@ document.addEventListener("DOMContentLoaded", function() {
  * Every logic is on RabbitSky module
  */
 
+var menuBackgroundCreated = false;
+var menuBackgroundSceneStage;
+var menuBackgroundSceneFloor;
+var menuBackgroundRendererStage;
+var menuBackgroundRendererFloor;
+var menuBackgroundCamera;
+
+function createMenuBackground() {
+    /* Background */
+    rabbitSky.mainRabbit.object.visible = false;
+    rabbitSky.stage.bigRabbit.object.lookAt(rabbitSky.embed.position.x, rabbitSky.floor.bigRabbit.object.position.y, 0);
+
+    menuBackgroundSceneStage = rabbitSky.sceneBackground.clone();
+    menuBackgroundSceneFloor = rabbitSky.sceneFloor.clone();
+
+    rabbitSky.mainRabbit.object.visible = true;
+
+    menuBackgroundRendererStage = new WebGLRenderer({ alpha: true, antialias: false });
+    menuBackgroundRendererStage.setClearColor(0xffffff, 0);
+    menuBackgroundRendererStage.setPixelRatio( 1 );
+    menuBackgroundRendererStage.setSize( window.innerWidth, window.innerHeight );
+    menuBackgroundRendererStage.domElement.style.position = "fixed";
+    menuBackgroundRendererStage.domElement.style.top = 0;
+    menuBackgroundRendererStage.domElement.style.left = 0;
+    menuBackgroundRendererStage.domElement.style.pointerEvents = "none";
+    menuBackgroundRendererStage.domElement.style.filter = "blur(5px)";
+    document.getElementById("main-menu").appendChild( menuBackgroundRendererStage.domElement );
+
+    menuBackgroundRendererFloor = new WebGLRenderer({ alpha: true, antialias: false });
+    menuBackgroundRendererFloor.setClearColor(0xffffff, 0);
+    menuBackgroundRendererFloor.setPixelRatio( 1 );
+    menuBackgroundRendererFloor.setSize( window.innerWidth, window.innerHeight );
+    menuBackgroundRendererFloor.domElement.style.position = "fixed";
+    menuBackgroundRendererFloor.domElement.style.top = 0;
+    menuBackgroundRendererFloor.domElement.style.left = 0;
+    menuBackgroundRendererFloor.domElement.style.pointerEvents = "none";
+    menuBackgroundRendererFloor.domElement.style.filter = "blur(5px)";
+    document.getElementById("main-menu").appendChild( menuBackgroundRendererFloor.domElement );
+
+    menuBackgroundCamera = new PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 50000);
+    menuBackgroundCamera.position.set(rabbitSky.embed.position.x, rabbitSky.embed.position.y, -1500);
+    menuBackgroundCamera.lookAt(rabbitSky.embed.position.x, rabbitSky.embed.position.y, rabbitSky.embed.position.z);
+
+    menuBackgroundRendererStage.render( menuBackgroundSceneStage, menuBackgroundCamera );
+    menuBackgroundRendererFloor.render( menuBackgroundSceneFloor, menuBackgroundCamera );
+
+    menuBackgroundCreated = true;
+}
+
 var showUI = true;
 
 function toggleUI() {
     if(showUI) {
         showUI = false;
 
-        document.getElementById('settings-button').classList.add("none");
         document.getElementById('fps').classList.add("none");
+        hideOptionsButton();
         hideEmbedChatHideButton();
         hideHelpButton();
         hideChat();
     } else {
         showUI = true;
 
-        document.getElementById('settings-button').classList.remove("none");
         document.getElementById('fps').classList.remove("none");
+        showOptionsButton();
         showEmbedChatHideButton();
         showHelpButton();
         showChat();
@@ -391,28 +457,23 @@ function initFirstHelpPopup() {
 
     document.getElementById("game-first-info").classList.remove("none");
 
-    // Gamepad Listener
-    rabbitSky.gamepadController.uiHideFirstHelp = function() {
+    window.addEventListener("keydown", function exitGameFirstInfoKey(evt){
         document.getElementById("game-first-info").classList.add("none");
-        rabbitSky.gamepadController.uiHideFirstHelp = undefined;
-    };
-
-    window.addEventListener("keydown", function exitGameFirstInfo(evt){
-        switch ( evt.key ) {
-            case "h":
-            case "w":
-            case "a":
-            case "s":
-            case "d":
-            case "ArrowUp":
-            case "ArrowDown":
-            case "ArrowLeft":
-            case "ArrowRight":
-                document.getElementById("game-first-info").classList.add("none");
-                window.removeEventListener("keydown", exitGameFirstInfo);
-                break;
-        }
+        window.removeEventListener("keydown", exitGameFirstInfoKey);
     });
+
+    window.addEventListener("click", function exitGameFirstInfoMouse(evt){
+        document.getElementById("game-first-info").classList.add("none");
+        window.removeEventListener("click", exitGameFirstInfoMouse);
+    });
+}
+
+function showOptionsButton() {
+    document.getElementById('options-button').classList.remove("none");
+}
+
+function hideOptionsButton() {
+    document.getElementById('options-button').classList.add("none");
 }
 
 function showHelpButton() {
@@ -480,6 +541,10 @@ function hideTouchControl() {
 function hidePopup() {
     var blockerDom = document.getElementById('blocker');
 
+    if(blockerDom.classList.contains("none")) {
+        return;
+    }
+
     if(!blockerDom.classList.contains("noexit")){
         var popupBox = document.getElementsByClassName('popup-box');
         for(var i = 0; i < popupBox.length; i++) {
@@ -495,6 +560,8 @@ function hidePopup() {
         if(rabbitSky.isShowing()) {
             rabbitSky.focus();
         }
+
+        gamepadController.popupCloseFocus();
     }
 }
 
@@ -523,7 +590,17 @@ function showPopup(id, noexit) {
         if(rabbitSky.isShowing()) {
             rabbitSky.unfocus();
         }
+
+        gamepadController.changeFocus("popup", popupDom);
     }
+}
+
+function isShowPopup() {
+    if(document.getElementById('blocker').classList.contains("none")) {
+        return false;
+    }
+
+    return true;
 }
 
 var volumeBoxTimer;
@@ -563,6 +640,29 @@ function toggleEmbedChat() {
     rabbitSky.focus();
 }
 
+function backToMenu() {
+    if(rabbitSky.isShowing) {
+        rabbitSky.hide();
+        rabbitSky.stop();
+        rabbitSky.embed.stop();
+        rabbitSky.clearFPS();
+        rabbitSky.hideEmbedChat();
+
+        forceHidePopup();
+        hideOptionsButton();
+        hideHelpButton();
+        hideChat();
+        hideTouchControl();
+        hideEmbedChatHideButton();
+    }
+
+    document.getElementById("error-connect").classList.add("none");
+    document.getElementById("main-menu").classList.remove("none");
+
+    gamepadController.startStandalone();
+    gamepadController.changeFocus("menu", document.getElementById("main-menu"));
+}
+
 function clickButtonListener() {
     var connectDom = document.getElementsByClassName('connect-channel');
     for(var i = 0; i < connectDom.length; i++) {
@@ -572,6 +672,17 @@ function clickButtonListener() {
             }
         });
     }
+}
+
+function rabbitColorSliderChange() {
+    var h = document.getElementById("rabbit-color-hue").value;
+    var s = document.getElementById("rabbit-color-saturation").value;
+    var l = document.getElementById("rabbit-color-lightness").value;
+    rabbitCustomizer.changeColor(h, s, l);
+    rabbitSky.mainRabbit.setColor(h, s, l);
+
+    document.getElementById("rabbit-color-saturation").style.background = "linear-gradient(90deg, hsl(" + h + ",0%,50%) 0%, hsl(" + h + ",100%,50%) 100%)";
+    document.getElementById("rabbit-color-lightness").style.background = "linear-gradient(90deg, hsl(" + h + ",100%,15%) 0%, hsl(" + h + ",100%,50%) 50%, hsl(" + h + ",100%,85%) 100%)";
 }
 
 function mobileControlMove(evt) {
@@ -757,6 +868,30 @@ function mobileControlLookEnd(evt) {
 var holdCTRL = false;
 
 function initListenAll() {
+
+    document.getElementById("main-menu-settings").addEventListener('click', function(){
+        showPopup("settings");
+    });
+
+    document.getElementById("main-menu-customize").addEventListener('click', function(){
+        showPopup("rabbit-color-picker");
+    });
+
+    document.getElementById("main-menu-about").addEventListener('click', function(){
+        showPopup("about");
+    });
+
+    document.getElementById("main-menu-join").addEventListener('click', function(){
+        if(config.servers.length == 1) {
+            var wsScheme = (config.servers[0].secure) ? "wss://" : "ws://";
+            var wsURL = wsScheme + config.servers[0].host;
+            connectChannel(wsURL);
+        } else {
+            showPopup("server-browser");
+            channelLoad();
+        }
+    });
+
     document.getElementById("channel-refresh").addEventListener('click', function(){
         if(this.classList.contains('disabled')) {
             return;
@@ -765,16 +900,33 @@ function initListenAll() {
         channelLoad();
     });
 
-    document.getElementById("settings-button").addEventListener('click', function(){
+    document.getElementById("options-button").addEventListener('click', function(){
+        showPopup("options");
+    });
+
+    document.getElementById("option-setting-button").addEventListener('click', function(){
         showPopup("settings");
+    });
+
+    document.getElementById("option-about").addEventListener('click', function(){
+        showPopup("about");
+    });
+
+    document.getElementById("option-back-to-menu").addEventListener('click', function(){
+        showPopup("confirm-exit");
+    });
+
+    document.getElementById("confirm-exit-no").addEventListener('click', function(){
+        showPopup("options");
+    });
+
+    document.getElementById("confirm-exit-yes").addEventListener('click', function(){
+        backToMenu();
+        rabbitSky.wsHandler.disconnect(true);
     });
 
     document.getElementById("help-button").addEventListener('click', function(){
         showPopup("help");
-    });
-
-    document.getElementById("customize-button").addEventListener('click', function(){
-        showPopup("rabbit-color-picker");
     });
 
     document.getElementById("blocker").addEventListener('click', function(){
@@ -796,21 +948,7 @@ function initListenAll() {
     var backToMenuButton = document.getElementsByClassName('back-to-menu');
     for(var i = 0; i < backToMenuButton.length; i++) {
         backToMenuButton[i].addEventListener('click', function() {
-            if(rabbitSky.isShowing) {
-                rabbitSky.hide();
-                rabbitSky.embed.stop();
-                rabbitSky.clearFPS();
-                rabbitSky.hideEmbedChat();
-
-                forceHidePopup();
-                hideHelpButton();
-                hideChat();
-                hideTouchControl();
-            }
-
-            document.getElementById("error-connect").classList.add("none");
-            document.getElementById("main-menu").classList.remove("none");
-            channelLoad();
+            backToMenu();
         });
     }
 
@@ -966,30 +1104,15 @@ function initListenAll() {
 
     /* Rabbit Slider */
     document.getElementById("rabbit-color-hue").addEventListener('change', function(){
-        var h = document.getElementById("rabbit-color-hue").value;
-        var s = document.getElementById("rabbit-color-saturation").value;
-        var l = document.getElementById("rabbit-color-lightness").value;
-        rabbitCustomizer.changeColor(h, s, l);
-        rabbitSky.mainRabbit.setColor(h, s, l);
-
-        document.getElementById("rabbit-color-saturation").style.background = "linear-gradient(90deg, hsl(" + h + ",0%,50%) 0%, hsl(" + h + ",100%,50%) 100%)"
-        document.getElementById("rabbit-color-lightness").style.background = "linear-gradient(90deg, hsl(" + h + ",100%,15%) 0%, hsl(" + h + ",100%,50%) 50%, hsl(" + h + ",100%,85%) 100%)"
+        rabbitColorSliderChange();
     });
 
     document.getElementById("rabbit-color-saturation").addEventListener('change', function(){
-        var h = document.getElementById("rabbit-color-hue").value;
-        var s = document.getElementById("rabbit-color-saturation").value;
-        var l = document.getElementById("rabbit-color-lightness").value;
-        rabbitCustomizer.changeColor(h, s, l);
-        rabbitSky.mainRabbit.setColor(h, s, l);
+        rabbitColorSliderChange();
     });
 
     document.getElementById("rabbit-color-lightness").addEventListener('change', function(){
-        var h = document.getElementById("rabbit-color-hue").value;
-        var s = document.getElementById("rabbit-color-saturation").value;
-        var l = document.getElementById("rabbit-color-lightness").value;
-        rabbitCustomizer.changeColor(h, s, l);
-        rabbitSky.mainRabbit.setColor(h, s, l);
+        rabbitColorSliderChange();
     });
 
     document.getElementById("rabbit-customizer-save").addEventListener('click', function(){
@@ -1075,8 +1198,14 @@ function initListenAll() {
     window.addEventListener("keydown", function(evt){
         switch ( evt.key ) {
             case "Escape":
-                hidePopup();
-                emojiPicker.functions.removeAllEmojiPicker();
+                if(isShowPopup()) {
+                    hidePopup();
+                } else if(emojiPicker.functions.isEmojiPickerVisible()) {
+                    emojiPicker.functions.removeAllEmojiPicker();
+                } else {
+                    showPopup("options");
+                }
+
                 evt.preventDefault();
                 break;
             case "Control":
@@ -1101,6 +1230,18 @@ function initListenAll() {
         if(holdCTRL && rabbitSky.isShowing()) {
             evt.preventDefault();
             evt.returnValue = '';
+        }
+    });
+
+    window.addEventListener('resize', function(evt) {
+        if(menuBackgroundCreated) {
+            menuBackgroundRendererStage.setSize( window.innerWidth, window.innerHeight );
+            menuBackgroundRendererFloor.setSize( window.innerWidth, window.innerHeight );
+            menuBackgroundCamera.aspect = window.innerWidth / window.innerHeight;
+            menuBackgroundCamera.updateProjectionMatrix();
+
+            menuBackgroundRendererStage.render( menuBackgroundSceneStage, menuBackgroundCamera );
+            menuBackgroundRendererFloor.render( menuBackgroundSceneFloor, menuBackgroundCamera );
         }
     });
 }

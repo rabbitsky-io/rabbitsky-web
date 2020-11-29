@@ -135,6 +135,11 @@ Yes, you can edit whatever you like, then publish it for your own web. Changing 
 ## In Game Chat Command
 For in-game chat command, please refer to the [Server Side](https://github.com/rabbitsky-io/rabbitsky-server) ReadMe file.
 
+## Gamepad Controller Support
+Rabbit Sky is now Gamepad Enabled, **BUT** we marked it as BETA. That means it will not works 100% well, there will be problem, bug, or browser hang, and also it is because Gamepad API is still in draft.
+
+If you found any bug, let us know by raising issues.
+
 ## Known Problem That Cannot Be Fixed
 - Twitch only allow secure website (HTTPS) to embed their player. There is no other way to do it except you must install SSL Certificate on your web server. You can generate SSL Cert for free using LetsEncrypt, or you can use third-party that can change your server to HTTPS like Cloudflare.
 - YouTube Live Chat not logged in for some browsers, eventho you login-and-out, live chat still treat you as guest. We still don't know why, they don't have official documentation on how embed their live chat. If you encounter this problem, please change your browser. Chrome works best for us.

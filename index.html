@@ -13,53 +13,68 @@
 	<body>
         <!-- In Game -->
         <div id="in-game-container">
-            <div id="settings-button" title="Settings" class="none"></div>
-            <div id="settings-button-popup" class="none">Low FPS? Click Here &raquo;</div>
-            <div id="customize-button" title="Customize Rabbit" class="none"></div>
-            <div id="customize-button-popup" class="none">Customize your rabbit here!</div>
+            <div id="options-button" title="Options" class="none"></div>
             <div id="help-button" title="Help" class="none">?</div>
             <div id="emoji-mobile-button" title="Emoji" class="none"></div>
             <div id="hide-embed-chat-button" title="Hide Embed Chat" class="none">HIDE CHAT</div>
             <div id="blocker" class="none"></div>
+            <div id="about" class="popup-box popup-box-about none">
+                <div class="popup-box-container">
+                    <div class="popup-exit">X</div>
+                    <div class="popup-header">About</div>
+                    <a href="https://rabbitsky.io" target="_blank" title="Rabbit Sky" class="about-logo">&nbsp;</a>
+                    <div class="text-center mt-10">
+                        Build v0.1.6 - Open Source
+                    </div>
+                    <div class="text-center mt-10">&nbsp;</div>
+                    <div class="text-center mt-10">
+                        For more info, visit:
+                    </div>
+                    <div class="text-center mt-10">
+                        <a href="https://rabbitsky.io/" title="Rabbit Sky Website" target="_blank" class="gamepad-focus">https://rabbitsky.io</a>
+                    </div>
+                </div>
+            </div>
+            <div id="server-browser" class="popup-box none">
+                <div id="popup-server-browser-container" class="popup-box-container flex-center">
+                    <div class="popup-exit">X</div>
+                    <div class="popup-header">Server Browser</div>
+                    <div class="text-center">
+                        <div id="server-browser-channels-list">
+                            <div id="server-browser-channel-list-dyn">
+                                <div class="text-center pt-10">Loading...</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-center">
+                        <div id="server-browser-channel-loading" class="none">
+                            <div class="loading-square"></div> Loading...
+                        </div>
+                        <div id="channel-refresh" class="gamepad-focus">Refresh</div>
+                    </div>
+                </div>
+            </div>
             <div id="rabbit-color-picker" class="popup-box none">
                 <div class="popup-box-container">
                     <div class="popup-exit">X</div>
                     <div class="popup-header">Rabbit Customizer</div>
                     <div id="rabbit-color-container">
                         <canvas id="rabbit-customizer-canvas"></canvas>
-                        <div class="rabbit-color-info">Hue</div>
-                        <input type="range" min="0" max="360" value="100" class="rabbit-slider" id="rabbit-color-hue">
-                        <div class="rabbit-color-info">Saturation</div>
-                        <input type="range" min="0" max="100" value="50" class="rabbit-slider" id="rabbit-color-saturation">
-                        <div class="rabbit-color-info">Lightness</div>
-                        <input type="range" min="15" max="85" value="50" class="rabbit-slider" id="rabbit-color-lightness">
-                        <div id="rabbit-customizer-random">Random</div>
-                        <div id="rabbit-customizer-save">Save</div>
+                        <label class="gamepad-focus gamepad-slider">
+                            <div class="rabbit-color-info">Hue</div>
+                            <input type="range" min="0" max="360" value="100" class="rabbit-slider" id="rabbit-color-hue">
+                        </label>
+                        <label class="gamepad-focus gamepad-slider">
+                            <div class="rabbit-color-info">Saturation</div>
+                            <input type="range" min="0" max="100" value="50" class="rabbit-slider" id="rabbit-color-saturation">
+                        </label>
+                        <label class="gamepad-focus gamepad-slider">
+                            <div class="rabbit-color-info">Lightness</div>
+                            <input type="range" min="15" max="85" value="50" class="rabbit-slider" id="rabbit-color-lightness">
+                        </label>
+                        <div id="rabbit-customizer-save" class="popup-button gamepad-focus">Save</div>
+                        <div id="rabbit-customizer-random" class="popup-button gamepad-focus">Random</div>
                     </div>
-                </div>
-            </div>
-            <div id="game-first-info" class="none">
-                <div class="game-first-info-container">
-                    <div class="game-info-buttons">
-                        <div class="game-info-button">W</div>
-                        <div class="game-info-button">A</div>
-                        <div class="game-info-button">S</div>
-                        <div class="game-info-button">D</div>
-                    </div>
-                    <div class="game-info-explanation">Move around</div>
-                </div>
-
-                <div class="game-first-info-container">
-                    <div class="game-info-buttons">
-                        <div class="game-info-button">&uarr;</div>
-                        <div class="game-info-button">&larr;</div>
-                        <div class="game-info-button">&darr;</div>
-                        <div class="game-info-button">&rarr;</div>
-                    </div>
-                    <div class="game-info-explanation">Look around</div>
-                </div>
-                <div class="game-first-info-container">
-                    <div class="game-info-explanation-more">Press <div class="game-info-button">H</div> for more shortcut </div>
                 </div>
             </div>
             <div id="help" class="popup-box none">
@@ -92,6 +107,10 @@
                         <div class="help-list">
                             <div class="help-button help-button-ctrl">CTRL</div>
                             <div class="help-explanation">Duck</div>
+                        </div>
+                        <div class="help-list">
+                            <div class="help-button help-button-ctrl">Esc</div>
+                            <div class="help-explanation">Options</div>
                         </div>
                         <div class="help-list">
                             <div class="help-button">-</div>
@@ -136,63 +155,63 @@
                     </div>
                 </div>
             </div>
-            <div id="settings" class="popup-box none">
+            <div id="settings" class="popup-box none gamepad-tab">
                 <div class="popup-box-container">
                     <div class="popup-exit">X</div>
                     <div class="popup-header">Settings</div>
-                    <div class="setting-tab selected" data-id="setting-graphics">Graphics</div>
-                    <div class="setting-tab" data-id="setting-chat">Chat</div>
+                    <div class="setting-tab selected gamepad-tab-option" data-id="setting-graphics">Graphics</div>
+                    <div class="setting-tab gamepad-tab-option" data-id="setting-chat">Chat</div>
                     <div id="settings-container">
                         <div id="setting-graphics" class="setting-tab-select">
-                            <label>
+                            <label class="gamepad-focus gamepad-checkbox">
                                 <input type="checkbox" id="setting-show-fps" class="setting-checkbox">
                                 <span class="checkmark">X</span>
                                 Show FPS
                                 <span class="info">Show FPS on the top left side of the screen.</span>
                             </label>
-                            <label id="label-setting-low-scale" class="none">
+                            <label id="label-setting-low-scale" class="none gamepad-focus gamepad-checkbox">
                                 <input type="checkbox" id="setting-low-scale" class="setting-checkbox">
                                 <span class="checkmark">X</span>
                                 Low Quality Render
                                 <span class="info">Force scale to low quality. FPS+++</span>
                             </label>
-                            <label>
+                            <label class="gamepad-focus gamepad-checkbox">
                                 <input type="checkbox" id="setting-disable-antialias" class="setting-checkbox">
                                 <span class="checkmark">X</span>
                                 Disable Anti Aliasing
                                 <span class="info">Disable antialiasing / smooth edges. FPS+++</span>
                             </label>
-                            <label>
+                            <label class="gamepad-focus gamepad-checkbox">
                                 <input type="checkbox" id="setting-disable-reflection" class="setting-checkbox">
                                 <span class="checkmark">X</span>
                                 Disable Reflection
                                 <span class="info">Disable floor reflection. FPS+++</span>
                             </label>
-                            <label>
+                            <label class="gamepad-focus gamepad-checkbox">
+                                <input type="checkbox" id="setting-disable-screen-lighting" class="setting-checkbox">
+                                <span class="checkmark">X</span>
+                                Disable Screen Lighting
+                                <span class="info">Remove screen lighting. FPS++</span>
+                            </label>
+                            <label class="gamepad-focus gamepad-checkbox">
                                 <input type="checkbox" id="setting-disable-move-animation" class="setting-checkbox">
                                 <span class="checkmark">X</span>
                                 Disable Smooth Moving
                                 <span class="info">Disable another player smooth animation. FPS+</span>
                             </label>
-                            <label>
+                            <label class="gamepad-focus gamepad-checkbox">
                                 <input type="checkbox" id="setting-disable-chat" class="setting-checkbox">
                                 <span class="checkmark">X</span>
                                 Disable Chat
                                 <span class="info">Disable chatbox on player. FPS+</span>
                             </label>
-                            <label>
+                            <label class="gamepad-focus gamepad-checkbox">
                                 <input type="checkbox" id="setting-hide-stage" class="setting-checkbox">
                                 <span class="checkmark">X</span>
                                 Hide Stage and Big Rabbits
                                 <span class="info">Remove front stage and back big rabbit. FPS+</span>
                             </label>
-                            <label>
-                                <input type="checkbox" id="setting-disable-screen-lighting" class="setting-checkbox">
-                                <span class="checkmark">X</span>
-                                Disable Screen Lighting
-                                <span class="info">Remove screen lighting. FPS+</span>
-                            </label>
-                            <label>
+                            <label class="gamepad-focus gamepad-checkbox">
                                 <input type="checkbox" id="setting-disable-screen-video" class="setting-checkbox">
                                 <span class="checkmark">X</span>
                                 Disable Screen Video
@@ -200,12 +219,37 @@
                             </label>
                         </div>
                         <div id="setting-chat" class="setting-tab-select none">
-                            <label>
+                            <label class="gamepad-focus gamepad-checkbox">
                                 <input type="checkbox" checked id="setting-enable-chat-filter" class="setting-checkbox">
                                 <span class="checkmark">X</span>
                                 Chat Filter
                                 <span class="info">Censors bad keyword.</span>
                             </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="options" class="popup-box popup-options none">
+                <div class="popup-box-container flex-center">
+                    <div class="popup-exit">X</div>
+                    <div class="popup-header">Options</div>
+                    <div class="text-center">
+                        <div id="option-setting-button" class="popup-button gamepad-focus">Settings</div>
+                        <div id="option-about" class="popup-button mt-10 gamepad-focus">About</div>
+                        <div id="option-back-to-menu" class="popup-button mt-10 gamepad-focus gamepad-trigger-popup">Back to Menu</div>
+                    </div>
+                </div>
+            </div>
+            <div id="confirm-exit" class="popup-box popup-confirm-exit none">
+                <div id="popup-confirm-exit-container" class="popup-box-container flex-center">
+                    <div class="popup-exit">X</div>
+                    <div class="popup-header">Back To Menu</div>
+                    <div class="text-center">
+                        <div class="text-center">Are you sure</div>
+                        <div class="text-center mt-10">you want to exit?</div>
+                        <div class="text-center mt-20">
+                            <div id="confirm-exit-no" class="popup-button gamepad-focus">No</div>
+                            <div id="confirm-exit-yes" class="popup-button mt-10 gamepad-focus gamepad-clear-push">Yes</div>
                         </div>
                     </div>
                 </div>
@@ -218,9 +262,9 @@
                     <div class="text-center">Reason: <span id="disconnect-reason"></span></div>
                     <div class="flex-break"></div>
                     <div class="text-center">
-                        <div class="reconnect">Reconnect</div>
-                        <div class="stay-offline mt-10">Stay Offline</div>
-                        <div class="back-to-menu mt-10">Back to Menu</div>
+                        <div class="reconnect popup-button gamepad-focus">Reconnect</div>
+                        <div class="stay-offline popup-button mt-10 gamepad-focus">Stay Offline</div>
+                        <div class="back-to-menu popup-button mt-10 gamepad-focus">Back to Menu</div>
                     </div>
                 </div>
                 <div id="popup-reconnect-container" class="popup-box-container flex-center none">
@@ -228,6 +272,30 @@
                     <div class="text-center mt-10">
                         <div class="loading-square"></div> Reconnecting...
                     </div>
+                </div>
+            </div>
+            <div id="game-first-info" class="none">
+                <div class="game-first-info-container">
+                    <div class="game-info-buttons">
+                        <div class="game-info-button">W</div>
+                        <div class="game-info-button">A</div>
+                        <div class="game-info-button">S</div>
+                        <div class="game-info-button">D</div>
+                    </div>
+                    <div class="game-info-explanation">Move around</div>
+                </div>
+
+                <div class="game-first-info-container">
+                    <div class="game-info-buttons">
+                        <div class="game-info-button">&uarr;</div>
+                        <div class="game-info-button">&larr;</div>
+                        <div class="game-info-button">&darr;</div>
+                        <div class="game-info-button">&rarr;</div>
+                    </div>
+                    <div class="game-info-explanation">Look around</div>
+                </div>
+                <div class="game-first-info-container">
+                    <div class="game-info-explanation-more">Press <div class="game-info-button">H</div> for more shortcut </div>
                 </div>
             </div>
             <div id="fps"></div>
@@ -280,21 +348,16 @@
 
         <!-- Main Menu -->
         <div id="main-menu" class="none">
-            <div id="main-menu-logo">
-                <div id="rabbit-sky-logo">RABBIT SKY</div>
-                <div id="main-menu-now-playing-info">Now Playing:</div>
-                <div id="main-menu-now-playing"></div>
-            </div>
             <div id="main-menu-container">
-                <div id="main-menu-headers">Server List</div>
-                <div id="main-menu-channels-list">
-                    <div id="main-menu-channel-loading" class="none">
-                        <div class="loading-square"></div>
-                    </div>
-                    <div id="main-menu-channel-list-dyn">
-                        <div class="text-center pt-10">Loading...</div>
-                    </div>
-                    <div id="channel-refresh">Refresh</div>
+                <div id="main-menu-logo">
+                    <div id="rabbit-sky-logo">RABBIT SKY</div>
+                    <div id="main-menu-now-playing-info">Now Playing: <span id="main-menu-now-playing"></span></div>
+                </div>
+                <div id="main-menu-buttons">
+                    <div id="main-menu-join" class="main-menu-button gamepad-focus gamepad-trigger-popup">Join Sky</div>
+                    <div id="main-menu-settings" class="main-menu-button gamepad-focus gamepad-trigger-popup">Settings</div>
+                    <div id="main-menu-customize" class="main-menu-button gamepad-focus gamepad-trigger-popup">Customize</div>
+                    <div id="main-menu-about" class="main-menu-button gamepad-focus gamepad-trigger-popup">About</div>
                 </div>
             </div>
         </div>
@@ -312,7 +375,7 @@
             <div>
                 <div class="text-center">
                     Unable to join server: <span id="connect-error-reason"></span>
-                    <div class="back-to-menu mt-20">Back to Menu</div>
+                    <div class="back-to-menu mt-20 gamepad-focus">Back to Menu</div>
                 </div>
             </div>
         </div>
