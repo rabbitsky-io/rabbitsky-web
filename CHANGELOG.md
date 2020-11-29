@@ -1,5 +1,8 @@
 # Rabbit Sky Client Changelog
 
+## Version 0.1.6.1
+- Fix a bug when rejoin from back to menu button, it will sent an error, but actually it is connected.
+
 ## Version 0.1.6
 - Full Support of Gamepad Controller (Beta).
 - Add `/fly` handler.

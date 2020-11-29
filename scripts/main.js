@@ -152,7 +152,6 @@ function checkReady(num) {
             rabbitSky.setDomContainer(document.getElementById("in-game-container"));
             rabbitSky.mainRabbit.setColor(rabbitCustomizer.rabbit.colorH, rabbitCustomizer.rabbit.colorS, rabbitCustomizer.rabbit.colorL);
 
-
             /* Create Menu Background */
             createMenuBackground();
 
@@ -309,11 +308,13 @@ function onPlayerDisconnect() {
         getDisconnectReason = "Timed out"
     }
 
-    document.getElementById("disconnect-reason").innerHTML = getDisconnectReason;
-    document.getElementById('popup-disconnected-container').classList.remove('none');
-    document.getElementById('popup-reconnect-container').classList.add('none');
+    if(getDisconnectReason != "BYUSER") {
+        document.getElementById("disconnect-reason").innerHTML = getDisconnectReason;
+        document.getElementById('popup-disconnected-container').classList.remove('none');
+        document.getElementById('popup-reconnect-container').classList.add('none');
 
-    showPopup("disconnected", true);
+        showPopup("disconnected", true);
+    }
 
     if(typeof connectionTimer !== 'undefined') {
         clearInterval(connectionTimer);
@@ -922,7 +923,7 @@ function initListenAll() {
 
     document.getElementById("confirm-exit-yes").addEventListener('click', function(){
         backToMenu();
-        rabbitSky.wsHandler.disconnect(true);
+        rabbitSky.disconnect(true);
     });
 
     document.getElementById("help-button").addEventListener('click', function(){

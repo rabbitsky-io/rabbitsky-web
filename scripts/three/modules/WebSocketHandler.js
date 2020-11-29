@@ -111,21 +111,17 @@ var WebSocketHandler = function(rabbit, floor) {
                 return
             }
 
+            if(wsHandler.disconnectedReason == "") {
+                wsHandler.disconnectedReason = "Timed out";
+            }
+
             if(this.disconnectByUser) {
-
-                // Do nothing but change var value
+                wsHandler.disconnectedReason = "BYUSER";
                 this.disconnectByUser = false;
+            }
 
-            } else {
-
-                if(wsHandler.disconnectedReason == "") {
-                    wsHandler.disconnectedReason = "Timed out";
-                }
-
-                if(typeof wsHandler.disconnectHandler !== 'undefined') {
-                    wsHandler.disconnectHandler();
-                }
-
+            if(typeof wsHandler.disconnectHandler !== 'undefined') {
+                wsHandler.disconnectHandler();
             }
         };
 

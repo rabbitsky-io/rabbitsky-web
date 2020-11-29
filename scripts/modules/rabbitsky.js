@@ -262,9 +262,9 @@ var RabbitSky = function(embedType, embedID, embedChat) {
         }
     }
 
-    this.disconnect = function() {
+    this.disconnect = function(isUser) {
         if(!this.wsHandler.connected) {
-            this.wsHandler.disconnect();
+            this.wsHandler.disconnect(isUser);
         }
     }
 
