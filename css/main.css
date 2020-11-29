@@ -29,11 +29,7 @@ canvas {
     outline: none;
 }
 
-div {
-    outline: none;
-}
-
-label {
+div, label, a {
     outline: none;
 }
 
