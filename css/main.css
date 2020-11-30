@@ -140,9 +140,9 @@ div, label, a {
 
 #main-menu #main-menu-container {
     margin: auto;
-    width: 100%;
+    width: 90%;
     max-width: 500px;
-    padding: 30px;
+    padding: 40px 20px;
     box-sizing: border-box;
     background-color: rgba(255,255,255,0.6);
     z-index: 3;
@@ -151,15 +151,29 @@ div, label, a {
 #main-menu #main-menu-logo {
     text-align: center;
     font-size: 8px;
-    padding: 10px;
     margin-bottom: 5px;
 }
 
 #main-menu #main-menu-logo #rabbit-sky-logo {
     color:#000000;
     font-size: 34px;
+    line-height: 40px;
     text-shadow: -3px -3px #FFFFFF, 3px 3px #FFFFFF;
     margin: 0 auto 10px;
+    white-space: nowrap;
+    text-align: center;
+}
+
+@media only screen and (max-width: 500px) {
+    #main-menu #main-menu-logo #rabbit-sky-logo {
+        font-size: 29px;
+    }
+}
+
+@media only screen and (max-width: 380px) {
+    #main-menu #main-menu-logo #rabbit-sky-logo {
+        font-size: 24px;
+    }
 }
 
 #main-menu #main-menu-logo #main-menu-now-playing-info {
@@ -200,7 +214,7 @@ div, label, a {
 }
 
 #main-menu #main-menu-buttons .main-menu-button:first-child {
-    background-color: #2c2c2c;
+    background-color: #4857b5;
     height: 60px;
     line-height: 60px;
 }
@@ -510,10 +524,10 @@ div, label, a {
 #server-browser {
     max-width: none;
     max-height: none;
-    top: 0;
-    right: 0;
-    left: 0;
-    bottom: 0;
+    top: 10px;
+    right: 10px;
+    left: 10px;
+    bottom: 20px;
     border: none;
 }
 
@@ -625,8 +639,8 @@ div, label, a {
     max-width: 150px;
     height: 60%;
     max-height: 40px;
-    margin-right: 20px;
     line-height: 60%;
+    margin-right: 20px;
 
     text-align: center;
     font-size: 9px;
@@ -634,6 +648,19 @@ div, label, a {
     background-color: #d1d1d1;
     color: #000000;
     box-shadow: 0px 2px #FFFFFF;
+}
+
+@media only screen and (max-width: 800px) {
+    #server-browser .server-browser-channel .channel-button {
+        top: 21px;
+        left: 60%;
+    }
+
+    #server-browser .server-browser-channel .channel-join-button {
+        height: 45%;
+        line-height: 45%;
+        max-width: 100px;
+    }
 }
 
 #server-browser .server-browser-channel:hover .channel-join-button, #server-browser .server-browser-channel:focus .channel-join-button {

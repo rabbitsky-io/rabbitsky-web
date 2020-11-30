@@ -1,5 +1,10 @@
 # Rabbit Sky Client Changelog
 
+## Version 0.1.6.2
+- This version is compatible with Server v0.1.6.
+- Change a bit UI on the Menu Join Button.
+- Fix UI Menu on mobile, logo was splitting when view is small.
+
 ## Version 0.1.6.1
 - This version is compatible with Server v0.1.6
 - Fix a bug when rejoin from back to menu button, it will sent an error, but actually it is connected.
