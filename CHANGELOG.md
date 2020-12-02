@@ -1,5 +1,9 @@
 # Rabbit Sky Client Changelog
 
+## Version 0.1.6.3
+- This version is compatible with Server v0.1.6.
+- Fix escape button showing options in menu.
+
 ## Version 0.1.6.2
 - This version is compatible with Server v0.1.6.
 - Change a bit UI on the Menu Join Button.

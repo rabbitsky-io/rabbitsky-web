@@ -1204,7 +1204,9 @@ function initListenAll() {
                 } else if(emojiPicker.functions.isEmojiPickerVisible()) {
                     emojiPicker.functions.removeAllEmojiPicker();
                 } else {
-                    showPopup("options");
+                    if(rabbitSky.isShowing()) {
+                        showPopup("options");
+                    }
                 }
 
                 evt.preventDefault();
