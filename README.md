@@ -126,7 +126,7 @@ You can customize image such as Banner, Logo, and Skybox. Detail:
 You can add, remove, and edit Emoji on `extras/emoji.json`. Format is JSON, emoji is on UTF-8 Unicode. You can see the detail from the file.
 
 ##### Chat Filter
-You can add, remove, and edit Emoji on `extras/chatfilter.txt`. One word per line.
+You can add, remove, and edit banned keywords on `extras/chatfilter.txt`. One word per line.
 
 ## I want to edit [...], can I do that?
 
@@ -143,6 +143,7 @@ If you found any bug, let us know by raising issues.
 ## Known Problem That Cannot Be Fixed
 - Twitch only allow secure website (HTTPS) to embed their player. There is no other way to do it except you must install SSL Certificate on your web server. You can generate SSL Cert for free using LetsEncrypt, or you can use third-party that can change your server to HTTPS like Cloudflare.
 - YouTube Live Chat not logged in for some browsers, eventho you login-and-out, live chat still treat you as guest. We still don't know why, they don't have official documentation on how embed their live chat. If you encounter this problem, please change your browser. Chrome works best for us.
+- When you are using Firefox, using gamepad sometime causing video marked as autoplay and will be played mute, or even not playing at all. To prevent this, you can use mouse for clicking menu. We reported the problem, but there's no timeline yet when it will be fixed. See: [Bugzilla #1679817](https://bugzilla.mozilla.org/show_bug.cgi?id=1679817).
 
 ## I am confusion, can you do it for me?
 Depends. We can create your own server for some price, but we do not have a big team, so it will take some time. If you're really interested, hit us up. You can see our contact on our website.
