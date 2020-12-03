@@ -906,7 +906,6 @@ div, label, a {
     outline: none;
     background-color: #424242;
     box-shadow: 0 2px #000000;
-    background-color: transparent;
     background-image: url("../images/buttons/rabbit.svg");
     background-repeat: no-repeat;
     background-size: 19px 19px;
