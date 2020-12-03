@@ -1087,15 +1087,15 @@ function initListenAll() {
                 var errTimeTimeout = Math.ceil(err * 1000);
                 var chatErrDom = document.getElementById("chaterr");
 
-                chatErrDom.innerHTML = "Please wait " + errTimePrint + " second" + ((errTimePrint > 1) ? "s" : "" ) + ".";;
-                chatErrDom.style.display = "block";
+                chatErrDom.innerHTML = "Please wait " + errTimePrint + " second" + ((errTimePrint > 1) ? "s" : "" ) + ".";
+                chatErrDom.classList.remove("none");
 
                 if (typeof chatErrorTimer !== 'undefined') {
                     clearInterval(chatErrorTimer);
                 }
 
                 chatErrorTimer = setTimeout(function(){
-                    chatErrDom.style.display = "none";
+                    chatErrDom.classList.add("none");
                 }, errTimeTimeout);
             }
         }

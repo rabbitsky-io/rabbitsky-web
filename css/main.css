@@ -843,6 +843,10 @@ div, label, a {
     width: 95px;
 }
 
+#help .help-button-escape {
+    font-size: 10px;
+}
+
 #help .help-explanation {
     display: inline-block;
     line-height: 30px;
@@ -893,16 +897,19 @@ div, label, a {
 }
 
 #chat-emoji {
-    height: 20px;
-    width: 20px;
+    height: 25px;
+    width: 25px;
     position: absolute;
-    top: 7px;
-    right: 7px;
+    top: 4px;
+    right: 4px;
     border: none;
+    outline: none;
+    background-color: #424242;
+    box-shadow: 0 2px #000000;
     background-color: transparent;
     background-image: url("../images/buttons/rabbit.svg");
     background-repeat: no-repeat;
-    background-size: contain;
+    background-size: 19px 19px;
     background-position: center center;
     opacity: 0.5;
     transition: opacity 100ms ease-in-out;
@@ -919,14 +926,13 @@ div, label, a {
     font-size: 10px;
     color: #8f0909;
     background-color: #FFFFFF;
-    border: 1px solid #8f0909;
+    box-shadow: -2px 2px #8f0909;
     border-radius: 1px;
     padding: 7px 14px;
     box-sizing: border-box;
     position: absolute;
-    bottom: 6px;
-    right: 6px;
-    display: none;
+    bottom: 4px;
+    right: 32px;
 }
 
 /* Volume Bar */
@@ -1219,8 +1225,8 @@ div, label, a {
     bottom: 10px;
     left: 10px;
     right: 10px;
-    max-width: 350px;
-    max-height: 170px;
+    max-width: 330px;
+    max-height: 190px;
     padding: 20px;
     margin: auto;
     z-index: 6;
@@ -1259,14 +1265,14 @@ div, label, a {
     vertical-align: middle;
 }
 
-#game-first-info .game-info-buttons .game-info-button:first-child {
+#game-first-info .game-info-buttons .game-info-button.first-block {
     display: block;
     margin: auto;
 }
 
 #game-first-info .game-info-explanation {
     display: inline-block;
-    width: 120px;
+    width: 150px;
     vertical-align: middle;
     font-size: 10px;
     margin-left: 30px;

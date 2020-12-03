@@ -109,10 +109,6 @@
                             <div class="help-explanation">Duck</div>
                         </div>
                         <div class="help-list">
-                            <div class="help-button help-button-ctrl">Esc</div>
-                            <div class="help-explanation">Options</div>
-                        </div>
-                        <div class="help-list">
                             <div class="help-button">-</div>
                             /
                             <div class="help-button">_</div>
@@ -135,6 +131,10 @@
                         <div class="help-list">
                             <div class="help-button">X</div>
                             <div class="help-explanation">Toggle Embed Chat</div>
+                        </div>
+                        <div class="help-list">
+                            <div class="help-button help-button-escape">Esc</div>
+                            <div class="help-explanation">Options</div>
                         </div>
                         <div class="help-list">
                             <div class="help-button">O</div>
@@ -277,7 +277,7 @@
             <div id="game-first-info" class="none">
                 <div class="game-first-info-container">
                     <div class="game-info-buttons">
-                        <div class="game-info-button">W</div>
+                        <div class="game-info-button first-block">W</div>
                         <div class="game-info-button">A</div>
                         <div class="game-info-button">S</div>
                         <div class="game-info-button">D</div>
@@ -287,13 +287,22 @@
 
                 <div class="game-first-info-container">
                     <div class="game-info-buttons">
-                        <div class="game-info-button">&uarr;</div>
+                        <div class="game-info-button first-block">&uarr;</div>
                         <div class="game-info-button">&larr;</div>
                         <div class="game-info-button">&darr;</div>
                         <div class="game-info-button">&rarr;</div>
                     </div>
                     <div class="game-info-explanation">Look around</div>
                 </div>
+
+                <div class="game-first-info-container">
+                    <div class="game-info-buttons mt-10">
+                        <div class="game-info-button">-</div>
+                        <div class="game-info-button">+</div>
+                    </div>
+                    <div class="game-info-explanation mt-10">Adjust Volume</div>
+                </div>
+
                 <div class="game-first-info-container">
                     <div class="game-info-explanation-more">Press <div class="game-info-button">H</div> for more shortcut </div>
                 </div>
@@ -301,9 +310,9 @@
             <div id="fps"></div>
             <form id="chatbox" action="javascript:void(0);" class="none">
                 <div id="chatcontainer">
-                    <input type="text" id="chat-input" name="chat-input" autocomplete="off" maxlength="50" placeholder="Type your chat here...">
-                    <input type="button" id="chat-emoji" name="chat-emoji">
-                    <div id="chaterr"></div>
+                    <input type="text" id="chat-input" name="chat-input" autocomplete="off" maxlength="50" placeholder="Press Enter to chat...">
+                    <input type="button" id="chat-emoji" name="chat-emoji" title="Emoji">
+                    <div id="chaterr" class="none"></div>
                 </div>
             </form>
             <div id="volume" class="none">

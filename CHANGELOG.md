@@ -3,6 +3,9 @@
 ## Version 0.1.6.3
 - This version is compatible with Server v0.1.6.
 - Fix escape button showing options in menu.
+- Fix chaterror box position after redesign menu.
+- Add "Adjust Volume" help on first game helper.
+- Change escape button on help.
 
 ## Version 0.1.6.2
 - This version is compatible with Server v0.1.6.
