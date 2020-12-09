@@ -123,13 +123,6 @@ div, label, a {
     right: 0;
     left: 0;
 
-    /*
-    background-image: url("../images/menu.jpg");
-    background-position: center center;
-    background-repeat: no-repeat;
-    background-size: cover;
-    */
-
     background-color: rgba(72, 87, 181, 0.5);
 
     display: flex;
@@ -144,7 +137,8 @@ div, label, a {
     max-width: 500px;
     padding: 40px 20px;
     box-sizing: border-box;
-    background-color: rgba(255,255,255,0.6);
+    background-color: rgba(0,0,0,0.4);
+    box-shadow: 2px 2px #FFFFFF;
     z-index: 3;
 }
 
@@ -177,14 +171,14 @@ div, label, a {
 }
 
 #main-menu #main-menu-logo #main-menu-now-playing-info {
-    color: #000000;
+    color: #ffffff;
     font-size: 7px;
     margin-bottom: 3px;
     text-align: center;
 }
 
 #main-menu #main-menu-logo #main-menu-now-playing {
-    color: #333333;
+    color: #c9c9c9;
     text-align: center;
 }
 

@@ -6415,6 +6415,9 @@ function Object3D() {
 
 	this.userData = {};
 
+	// Extra Rabbit Sky
+	this.visibleCamera = false;
+
 }
 
 Object3D.DefaultUp = new Vector3( 0, 1, 0 );
@@ -24202,6 +24205,9 @@ function WebGLRenderer( parameters ) {
 
 				if ( ! object.frustumCulled || _frustum.intersectsObject( object ) ) {
 
+					// Extra Rabbit Sky
+					object.visibleCamera = true;
+
 					if ( sortObjects ) {
 
 						_vector3.setFromMatrixPosition( object.matrixWorld )
@@ -24234,6 +24240,11 @@ function WebGLRenderer( parameters ) {
 						currentRenderList.push( object, geometry, material, groupOrder, _vector3.z, null );
 
 					}
+
+				} else {
+
+					// Extra Rabbit Sky
+					object.visibleCamera = false;
 
 				}
 

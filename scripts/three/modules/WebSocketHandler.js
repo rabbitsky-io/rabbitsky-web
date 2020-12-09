@@ -740,13 +740,13 @@ var WebSocketHandler = function(rabbit, floor) {
                     this.rabbitsAnimationHelper[id].toLookZ = this.rabbitsUpdateTo[id].lookZ;
 
                     // update
+                    this.rabbitsUpdateTo[id].changed = false;
                     this.rabbitsAnimationHelper[id].changed = true;
                 }
 
                 if(this.rabbitsAnimationHelper[id].changed) {
 
-                    if(percentProgress < 1) {
-
+                    if(percentProgress < 1 && (animateFirstFrame || this.rabbits[id].object.visibleCamera)) {
                         // Move
                         var diffPercentX = (this.rabbitsAnimationHelper[id].toX - this.rabbitsAnimationHelper[id].x) * percentProgress;
                         var diffPercentY = (this.rabbitsAnimationHelper[id].toY - this.rabbitsAnimationHelper[id].y) * percentProgress;
@@ -768,7 +768,6 @@ var WebSocketHandler = function(rabbit, floor) {
                         this.rabbits[id].lookAt(lookX, lookY, lookZ);
 
                     } else {
-
                         this.rabbits[id].move(this.rabbitsAnimationHelper[id].toX, this.rabbitsAnimationHelper[id].toY, this.rabbitsAnimationHelper[id].toZ);
                         this.rabbits[id].lookAt(this.rabbitsAnimationHelper[id].toLookX, this.rabbitsAnimationHelper[id].toLookY, this.rabbitsAnimationHelper[id].toLookZ);
 

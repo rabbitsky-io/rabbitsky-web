@@ -1,5 +1,11 @@
 # Rabbit Sky Client Changelog
 
+## Version 0.1.6.4
+- This version is compatible with Server v0.1.6.
+- Change Menu Background Color
+- Fix rabbit animation always update, causing some performance issue.
+- Improve smooth animation so it is not updating non-visible rabbit on camera.
+
 ## Version 0.1.6.3
 - This version is compatible with Server v0.1.6.
 - Fix escape button showing options in menu.
