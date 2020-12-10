@@ -1,5 +1,10 @@
 # Rabbit Sky Client Changelog
 
+## Version 0.1.6.5
+- This version is compatible with Server v0.1.6.
+- Fix mobile control move always to the side, and add dead zone for look control.
+- Removed unused gamepad file.
+
 ## Version 0.1.6.4
 - This version is compatible with Server v0.1.6.
 - Change Menu Background Color

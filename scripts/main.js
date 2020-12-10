@@ -726,6 +726,9 @@ function mobileControlMove(evt) {
         } else if (touchX > 5) {
             rabbitSky.controls.moveLeft = false;
             rabbitSky.controls.moveRight = true;
+        } else {
+            rabbitSky.controls.moveLeft = false;
+            rabbitSky.controls.moveRight = false;
         }
 
         if(touchY < -5) {
@@ -734,6 +737,9 @@ function mobileControlMove(evt) {
         } else if (touchY > 5) {
             rabbitSky.controls.moveForward = false;
             rabbitSky.controls.moveBackward = true;
+        } else {
+            rabbitSky.controls.moveForward = false;
+            rabbitSky.controls.moveBackward = false;
         }
 
         var currX = evt.touches[touchNum].pageX - x;
@@ -796,7 +802,7 @@ function mobileControlLook(evt) {
         var touchX = evt.touches[touchNum].pageX - x - (box.clientWidth / 2);
         var touchY = evt.touches[touchNum].pageY - y - (box.clientHeight / 2);
 
-        if(touchX != 0) {
+        if(touchX > 2 || touchX < -2) {
             var touch = touchX * 10;
             if(touch < -200) {
                 touch = -200;
@@ -805,9 +811,11 @@ function mobileControlLook(evt) {
             }
 
             rabbitSky.controls.mouseX = touch;
+        } else {
+            rabbitSky.controls.mouseX = 0;
         }
 
-        if(touchY != 0) {
+        if(touchY > 2 || touchY < -2) {
             var touch = touchY;
             if(touch < -20) {
                 touch = -20;
@@ -816,6 +824,8 @@ function mobileControlLook(evt) {
             }
 
             rabbitSky.controls.mouseY = touch * 10;
+        } else {
+            rabbitSky.controls.mouseY = 0;
         }
 
         var currX = evt.touches[touchNum].pageX - x;
