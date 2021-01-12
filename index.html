@@ -24,7 +24,7 @@
                     <div class="popup-header">About</div>
                     <a href="https://rabbitsky.io" target="_blank" title="Rabbit Sky" class="about-logo">&nbsp;</a>
                     <div class="text-center mt-10">
-                        Build v0.1.6 - Open Source
+                        Build v0.1.7 - Open Source
                     </div>
                     <div class="text-center mt-10">&nbsp;</div>
                     <div class="text-center mt-10">
@@ -194,6 +194,12 @@
                                 <span class="info">Remove screen lighting. FPS++</span>
                             </label>
                             <label class="gamepad-focus gamepad-checkbox">
+                                <input type="checkbox" id="setting-disable-stage-lighting" class="setting-checkbox">
+                                <span class="checkmark">X</span>
+                                Disable Stage Lighting
+                                <span class="info">Remove stage lighting. FPS+</span>
+                            </label>
+                            <label class="gamepad-focus gamepad-checkbox">
                                 <input type="checkbox" id="setting-disable-move-animation" class="setting-checkbox">
                                 <span class="checkmark">X</span>
                                 Disable Smooth Moving
@@ -315,6 +321,115 @@
                     <div id="chaterr" class="none"></div>
                 </div>
             </form>
+            <div id="adminbox" class="none">
+                <div id="adm-header">
+                    <div id="adminbox-minimize">+</div>
+                    Admin Panel
+                </div>
+                <div id="admcontainer" class="none">
+                    <div id="adm-func" class="adm-box-cont">
+                        <div class="adm-header">Function</div>
+                        <div class="adm-cont">
+                            Fly:
+                            <input type="button" class="adm-input-button" id="adm-fly-off" value="OFF" />
+                            <input type="button" class="adm-input-button" id="adm-fly-on" value="ON" />
+                        </div>
+                        <div class="adm-cont mt-10">
+                            Size:
+                            <input type="number" min="1" max="9" value="1" id="adm-size" name="adm-size" class="adm-input-num" maxlength="1" autocomplete="off">
+                            <input type="button" class="adm-input-button" id="adm-size-change" value="Change" />
+                        </div>
+                    </div>
+                    <div id="adm-bpm-box" class="adm-box-cont">
+                        <div class="adm-header">BPM - Light &amp; Sky</div>
+                        <div class="adm-cont">
+                            BPM: <input type="number" min="10" max="9999" value="100" id="adm-bpm" name="adm-bpm" class="adm-input-num" maxlength="4" autocomplete="off">
+                            <input type="button" class="adm-input-button" id="adm-bpm-tap" value="BPM Tap" />
+                            <input type="button" class="adm-input-button" id="adm-bpm-tap-reset" value="Reset Tap" />
+                        </div>
+                        <div class="adm-cont-right mt-10">Millisecond Per Note: <span id="adm-bpm-to-ms">2400</span>ms</div>
+                    </div>
+                    <div id="adm-light-box" class="adm-box-cont">
+                        <div class="adm-header">Light</div>
+                        <div class="adm-cont">
+                            Color: <input type="color" id="adm-light-color" class="adm-input-color" value="#4857b5">
+                        </div>
+                        <div class="adm-cont mt-10">
+                            Fade:
+                            <label>
+                                <input type="radio" value="1" class="adm-input-radio" name="adm-light-fade">
+                                Slow
+                            </label>
+                            <label>
+                                <input type="radio" value="2" class="adm-input-radio" name="adm-light-fade" checked>
+                                Normal
+                            </label>
+                            <label>
+                                <input type="radio" value="4" class="adm-input-radio" name="adm-light-fade">
+                                Fast
+                            </label>
+                            <label>
+                                <input type="radio" value="8" class="adm-input-radio" name="adm-light-fade">
+                                Very Fast
+                            </label>
+                        </div>
+                        <div class="adm-cont-right mt-10">
+                            <input type="button" class="adm-input-button adm-input-button-reset" id="adm-light-reset" value="Reset To Default" />
+                        </div>
+                        <div class="adm-cont-right">
+                            <input type="button" class="adm-input-button" id="adm-light-always-off" value="OFF" />
+                            <input type="button" class="adm-input-button" id="adm-light-always-on" value="Static" />
+                            <input type="button" class="adm-input-button" id="adm-light-bpm-1" value="1 Note" />
+                            <input type="button" class="adm-input-button" id="adm-light-bpm-1-2" value="1/2" />
+                            <input type="button" class="adm-input-button" id="adm-light-bpm-1-4" value="1/4" />
+                            <input type="button" class="adm-input-button" id="adm-light-bpm-1-8" value="1/8" />
+                        </div>
+                    </div>
+                    <div id="adm-sky-box" class="adm-box-cont">
+                        <div class="adm-header">Sky</div>
+                        <div class="adm-cont">
+                            Colors:
+                            <input type="checkbox" id="adm-sky-color-1-enable" class="adm-input-checkbox" checked disabled>
+                            <input type="color" id="adm-sky-color-1" class="adm-input-color" value="#4857b5" />
+                            <input type="checkbox" id="adm-sky-color-2-enable" class="adm-input-checkbox">
+                            <input type="color" id="adm-sky-color-2" class="adm-input-color" value="#2f3d94" />
+                            <input type="checkbox" id="adm-sky-color-3-enable" class="adm-input-checkbox">
+                            <input type="color" id="adm-sky-color-3" class="adm-input-color" value="#1e2a78" />
+                            <input type="checkbox" id="adm-sky-color-4-enable" class="adm-input-checkbox">
+                            <input type="color" id="adm-sky-color-4" class="adm-input-color" value="#2f3d94" />
+                        </div>
+                        <div class="adm-cont mt-10">
+                            Fade:
+                            <label>
+                                <input type="radio" value="1" class="adm-input-radio" name="adm-sky-fade">
+                                Slow
+                            </label>
+                            <label>
+                                <input type="radio" value="2" class="adm-input-radio" name="adm-sky-fade" checked>
+                                Normal
+                            </label>
+                            <label>
+                                <input type="radio" value="4" class="adm-input-radio" name="adm-sky-fade">
+                                Fast
+                            </label>
+                            <label>
+                                <input type="radio" value="8" class="adm-input-radio" name="adm-sky-fade">
+                                Very Fast
+                            </label>
+                        </div>
+                        <div class="adm-cont-right mt-10">
+                            <input type="button" class="adm-input-button adm-input-button-reset" id="adm-sky-reset" value="Reset To Default" />
+                        </div>
+                        <div class="adm-cont-right mt-10">
+                            <input type="button" class="adm-input-button" id="adm-sky-static" value="Static" />
+                            <input type="button" class="adm-input-button" id="adm-sky-bpm-1" value="1 Note" />
+                            <input type="button" class="adm-input-button" id="adm-sky-bpm-1-2" value="1/2" />
+                            <input type="button" class="adm-input-button" id="adm-sky-bpm-1-4" value="1/4" />
+                            <input type="button" class="adm-input-button" id="adm-sky-bpm-1-8" value="1/8" />
+                        </div>
+                    </div>
+                </div>
+            </div>
             <div id="volume" class="none">
                 <div>
                     Vol: <span id="volume-num">25</span>

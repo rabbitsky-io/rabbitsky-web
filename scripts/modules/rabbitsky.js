@@ -231,7 +231,7 @@ var RabbitSky = function(embedType, embedID, embedChat) {
     this.fps = new FPS("fps");
 
     // WebSocket Handler, the brain
-    this.wsHandler = new WebSocketHandler(this.mainRabbit, this.floor);
+    this.wsHandler = new WebSocketHandler(this.mainRabbit, this.floor, this.stage);
     this.wsHandler.setBackgroundDom(this.colorBackground);
 
     // For Delta FPS
@@ -249,45 +249,45 @@ var RabbitSky = function(embedType, embedID, embedChat) {
         }
 
         return false;
-    }
+    };
 
     this.init = function() {
         this.animate();
         this.embed.init();
-    }
+    };
 
     this.connect = function(url) {
         if(!this.wsHandler.connected) {
             this.wsHandler.connect(url);
         }
-    }
+    };
 
     this.disconnect = function(isUser) {
         if(!this.wsHandler.connected) {
             this.wsHandler.disconnect(isUser);
         }
-    }
+    };
 
     this.isConnected = function() {
         return this.wsHandler.connected;
-    }
+    };
 
     this.getDisconnectedReason = function() {
         return this.wsHandler.getDisconnectedReason();
-    }
+    };
 
     this.start = function(){
         this.clock.getDelta(); // forget last time
         this.embed.start();
         this.animateLoop();
-    }
+    };
 
     this.stop = function() {
         if(typeof this.animationID !== 'undefined') {
             cancelAnimationFrame(this.animationID);
             this.animationID = undefined;
         }
-    }
+    };
 
     this.isAnimating = function() {
         if(typeof this.animationID === 'undefined') {
@@ -295,7 +295,7 @@ var RabbitSky = function(embedType, embedID, embedChat) {
         }
 
         return true
-    }
+    };
 
     this.show = function() {
         this.colorBackground.style.display = "block";
@@ -304,7 +304,7 @@ var RabbitSky = function(embedType, embedID, embedChat) {
         this.rendererFloor.domElement.style.display = "block";
 
         this.isShowingEmbed = true;
-    }
+    };
 
     this.hide = function() {
         this.colorBackground.style.display = "none";
@@ -313,7 +313,7 @@ var RabbitSky = function(embedType, embedID, embedChat) {
         this.rendererFloor.domElement.style.display = "none";
 
         this.isShowingEmbed = false;
-    }
+    };
 
     this.showChat = function() {
         if(this.isShowing()) {
@@ -321,11 +321,11 @@ var RabbitSky = function(embedType, embedID, embedChat) {
                 document.getElementById("chatbox").style.display = "block";
             }
         }
-    }
+    };
 
     this.hideChat = function() {
         document.getElementById("chatbox").style.display = "none";
-    }
+    };
 
     this.isEmbedChatShow = function() {
         if(!this.embedChat) {
@@ -337,7 +337,7 @@ var RabbitSky = function(embedType, embedID, embedChat) {
         }
 
         return true;
-    }
+    };
 
     this.showEmbedChat = function() {
         if(!this.embedChat) {
@@ -360,7 +360,7 @@ var RabbitSky = function(embedType, embedID, embedChat) {
         this.chatEmbedResizeBox.style.display = "block";
 
         this.handleResize();
-    }
+    };
 
     this.hideEmbedChat = function() {
         this.chatEmbedWidthBeforeHide = this.chatEmbedWidth;
@@ -370,37 +370,41 @@ var RabbitSky = function(embedType, embedID, embedChat) {
         this.chatEmbedResizeBox.style.display = "none";
 
         this.handleResize();
-    }
+    };
 
     this.resizeEmbedChat = function(width) {
         this.chatEmbedWidth = width;
         this.chatEmbedBox.style.width = this.chatEmbedWidth + "px";
         this.handleResize();
-    }
+    };
 
     this.isShowing = function(){
         return this.isShowingEmbed;
-    }
+    };
+
+    this.isPlayerAdmin = function() {
+        return this.mainRabbit.isAdmin
+    };
 
     this.focus = function() {
         this.focusDom.focus();
-    }
+    };
 
     this.unfocus = function() {
         this.focusDom.blur();
-    }
+    };
 
     this.sendChat = function(text) {
         return this.wsHandler.sendChat(text)
-    }
+    };
 
     this.disconnectHandler = function(handler) {
         this.wsHandler.disconnectHandler = handler;
-    }
+    };
 
     this.clearFPS = function() {
         this.fps.clear();
-    }
+    };
 
     this.toggleCamera = function() {
         if(this.cameraRabbit.cameraAttached) {
@@ -410,11 +414,11 @@ var RabbitSky = function(embedType, embedID, embedChat) {
             this.cameraRabbit.attach();
             this.controls.moveRabbit();
         }
-    }
+    };
 
     this.setDomContainer = function(dom) {
         this.domContainer = dom;
-    }
+    };
 
     this.cloneRendererAA = function(oldRenderer, antialias) {
         if(typeof oldRenderer === "undefined") {
@@ -433,12 +437,12 @@ var RabbitSky = function(embedType, embedID, embedChat) {
         document.body.appendChild( renderer.domElement );
 
         return renderer;
-    }
+    };
 
     this.destroyRenderer = function(renderer) {
         renderer.domElement.remove();
         renderer.dispose();
-    }
+    };
 
     this.changeSettings = function(id, val) {
         if(val) {
@@ -487,6 +491,10 @@ var RabbitSky = function(embedType, embedID, embedChat) {
                     this.sceneFloor.remove(this.lightScreen);
                     this.sceneBackground.remove(this.lightBackgroundScreen);
                     this.lightScreenOn = false;
+                    break;
+
+                case "setting-disable-stage-lighting":
+                    this.stage.lightDisable();
                     break;
 
                 case "setting-disable-screen-video":
@@ -546,6 +554,10 @@ var RabbitSky = function(embedType, embedID, embedChat) {
                     this.lightScreenOn = true;
                     break;
 
+                case "setting-disable-stage-lighting":
+                    this.stage.lightEnable();
+                    break;
+
                 case "setting-disable-screen-video":
                     this.embed.object.position.y = this.embed.position.y;
                     break;
@@ -574,11 +586,15 @@ var RabbitSky = function(embedType, embedID, embedChat) {
                 }
             }
         }
-    }
+    };
 
     this.initChatFilter = function(chatFilterModule) {
         this.wsHandler.chatFilter = chatFilterModule;
-    }
+    };
+
+    this.setEnableAdminPanel = function(func) {
+        this.wsHandler.exFuncEnableAdminPanel = func;
+    };
 
     this.animate = function() {
         var getAnimationDelta = this.clock.getDelta();
@@ -596,14 +612,14 @@ var RabbitSky = function(embedType, embedID, embedChat) {
         this.rendererBackground.render( this.sceneBackground, this.camera );
         this.rendererScreen.render( this.sceneScreen, this.camera );
         this.rendererFloor.render( this.sceneFloor, this.camera );
-    }
+    };
 
     this.animateLoop = function() {
         this.animationID = requestAnimationFrame( _animateRabbitSky );
 
         this.animate();
         this.fps.update();
-    }
+    };
 
     this.handleResize = function() {
         if(typeof this.domContainer !== 'undefined') {
@@ -616,7 +632,7 @@ var RabbitSky = function(embedType, embedID, embedChat) {
         this.camera.aspect = (window.innerWidth - this.chatEmbedWidth) / window.innerHeight;
         this.camera.updateProjectionMatrix();
         this.controls.handleResize();
-    }
+    };
 
     /* Resize Chat */
     this.resizeEmbedChatMouseDown = function() {
@@ -674,7 +690,7 @@ var RabbitSky = function(embedType, embedID, embedChat) {
 		return function () {
 			fn.apply( scope, arguments );
 		};
-    }
+    };
 
     // Init
     this.init();

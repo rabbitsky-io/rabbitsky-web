@@ -6,10 +6,11 @@ import {
     Rabbit
 } from "./Rabbit.js";
 
-var WebSocketHandler = function(rabbit, floor) {
+var WebSocketHandler = function(rabbit, floor, stage) {
 
     this.rabbit = rabbit;
     this.floor = floor;
+    this.stage = stage;
 
     // For changing background color ingame
     this.backgroundDom;
@@ -26,6 +27,8 @@ var WebSocketHandler = function(rabbit, floor) {
     this.disconnectedReason = "";
     this.disconnectByUser = false;
 
+    this.exFuncEnableAdminPanel;
+
     // We don't really need float tho
     this.floatToInt = function(float) {
         return Math.round(float);
@@ -33,6 +36,8 @@ var WebSocketHandler = function(rabbit, floor) {
 
     // Main Rabbit Past Information for Sending Messages
     this.rabbitPast = {
+        size: this.rabbit.size,
+
         x: this.floatToInt(this.rabbit.object.position.x),
         y: this.floatToInt(this.rabbit.object.position.y),
         z: this.floatToInt(this.rabbit.object.position.z),
@@ -72,7 +77,7 @@ var WebSocketHandler = function(rabbit, floor) {
     this.isAnimating = false;
 
     // Regex for parse message
-    this.regexParseRabbit = new RegExp('^(?<id>[^=]+)=(H(?<colorh>[0-9]{1,3}))?(S(?<colors>[0-9]{1,3}))?(L(?<colorl>[0-9]{1,3}))?(X(?<posx>\-?[0-9]+))?(Y(?<posy>\-?[0-9]+))?(Z(?<posz>\-?[0-9]+))?(x(?<lookx>\-?[0-9]+))?(y(?<looky>\-?[0-9]+))?(z(?<lookz>\-?[0-9]+))?(D(?<duck>(0|1)))?(C(?<chat>.*))?$');
+    this.regexParseRabbit = new RegExp('^(?<id>[^=]+)=(B(?<size>[1-9]))?(H(?<colorh>[0-9]{1,3}))?(S(?<colors>[0-9]{1,3}))?(L(?<colorl>[0-9]{1,3}))?(X(?<posx>\-?[0-9]+))?(Y(?<posy>\-?[0-9]+))?(Z(?<posz>\-?[0-9]+))?(x(?<lookx>\-?[0-9]+))?(y(?<looky>\-?[0-9]+))?(z(?<lookz>\-?[0-9]+))?(D(?<duck>(0|1)))?(C(?<chat>.*))?$');
 
     this.connect = function(url) {
         if(typeof url !== 'undefined' && url != "") {
@@ -161,7 +166,7 @@ var WebSocketHandler = function(rabbit, floor) {
 
         var chatTimeDelta = this.chatTimer.getDelta();
 
-        if ( chatTimeDelta > 3 || this.chatFirstTime ) {
+        if ( chatTimeDelta > 3 || this.chatFirstTime || this.rabbit.isAdmin ) {
 
             var chatClean = this.chatSanitized(chat);
 
@@ -230,24 +235,18 @@ var WebSocketHandler = function(rabbit, floor) {
         if(currX != this.rabbitPast.x) {
             rabbitData.push("X");
             rabbitData.push(currX);
-
-            this.rabbitPast.x = currX;
         }
 
         var currY = this.floatToInt(this.rabbit.object.position.y);
         if(currY != this.rabbitPast.y) {
             rabbitData.push("Y");
             rabbitData.push(currY);
-
-            this.rabbitPast.y = currY;
         }
 
         var currZ = this.floatToInt(this.rabbit.object.position.z);
         if(currZ != this.rabbitPast.z) {
             rabbitData.push("Z");
             rabbitData.push(currZ);
-
-            this.rabbitPast.z = currZ;
         }
 
         // Look At
@@ -257,32 +256,24 @@ var WebSocketHandler = function(rabbit, floor) {
         if(currLookX != this.rabbitPast.lookX) {
             rabbitData.push("x");
             rabbitData.push(currLookX);
-
-            this.rabbitPast.lookX = currLookX;
         }
 
         var currLookY = this.floatToInt(rabbitLookAt.y);
         if(currLookY != this.rabbitPast.lookY) {
             rabbitData.push("y");
             rabbitData.push(currLookY);
-
-            this.rabbitPast.lookY = currLookY;
         }
 
         var currLookZ = this.floatToInt(rabbitLookAt.z);
         if(currLookZ != this.rabbitPast.lookZ) {
             rabbitData.push("z");
             rabbitData.push(currLookZ);
-
-            this.rabbitPast.lookZ = currLookZ;
         }
 
         if(this.rabbit.isDuck != this.rabbitPast.isDuck) {
             var parseIsDuck = (this.rabbit.isDuck) ? '1' : '0';
             rabbitData.push("D");
             rabbitData.push(parseIsDuck);
-
-            this.rabbitPast.isDuck = this.rabbit.isDuck;
         }
 
         if(this.chat != "") {
@@ -354,6 +345,9 @@ var WebSocketHandler = function(rabbit, floor) {
                     var rabbitData = {
                         id: regexGroup.id,
 
+                        // Size
+                        size: (regexGroup.size) ? regexGroup.size : '',
+
                         // Colors
                         h: (regexGroup.colorh) ? regexGroup.colorh : '',
                         s: (regexGroup.colors) ? regexGroup.colors : '',
@@ -388,6 +382,9 @@ var WebSocketHandler = function(rabbit, floor) {
 
                     var rabbitData = {
                         id: regexGroup.id,
+
+                        // Size
+                        size: (regexGroup.size) ? regexGroup.size : '',
 
                         // Colors
                         h: (regexGroup.colorh) ? regexGroup.colorh : '',
@@ -487,7 +484,7 @@ var WebSocketHandler = function(rabbit, floor) {
                         if(colors.length > 1) {
                             var that = this;
                             clearInterval(this.backgroundTimeout);
-                            this.backgroundTimeout = setTimeout(function() { that.backgroundFlash(time, timeTransition, colors, 0) }, time);
+                            this.backgroundTimeout = setTimeout(function() { that.backgroundFlash(time, timeTransition, colors, 0) }, 1);
                         }
                     } else {
                         var skyData = messageData.substr(1);
@@ -512,6 +509,73 @@ var WebSocketHandler = function(rabbit, floor) {
                     }
 
                     break;
+                case "L":
+                    var messageData = message.substr(1);
+                    if (messageData == "") {
+                        break;
+                    }
+
+                    var lightType = messageData.charAt(0);
+                    if (lightType == "0") {
+
+                        this.stage.lightAlwaysOff();
+
+                    } else if (lightType == "1") {
+
+                        if(messageData.length > 1) {
+                            var lightColor = messageData.substr(1);
+                            if(lightColor == "default") {
+                                lightColor = "#4857b5";
+                            }
+
+                            this.stage.lightColor(lightColor);
+                        }
+
+                        this.stage.lightAlwaysOn();
+
+                    } else if (lightType == "2") {
+
+                        var lightData = messageData.substr(1);
+                        if(lightData == "") {
+                            break;
+                        }
+
+                        var splitLightData = this.parseMessageSplitter(lightData, ",");
+                        if(splitLightData.length < 2) {
+                            break;
+                        }
+
+                        var time = splitLightData[0];
+                        if(time < 100) {
+                            time = 100;
+                        }
+
+                        var timeTransition = splitLightData[1];
+                        if (timeTransition > (time - 50)) {
+                            timeTransition = (time - 50);
+                        }
+
+                        if(splitLightData.length > 2) {
+                            var lightColor = splitLightData[2];
+                            if(lightColor == "default") {
+                                lightColor = "#4857b5";
+                            }
+
+                            this.stage.lightColor(lightColor);
+                        }
+
+                        this.stage.lightBlink(time, timeTransition);
+                    }
+
+                    break;
+
+                case "A":
+                    this.rabbit.isAdmin = true;
+                    if(typeof this.exFuncEnableAdminPanel !== "undefined") {
+                        this.exFuncEnableAdminPanel();
+                    }
+
+                    break;
             }
         }
 
@@ -522,6 +586,22 @@ var WebSocketHandler = function(rabbit, floor) {
     // Add Rabbit
     this.addRabbit = function(rabbitData) {
         if (rabbitData.id == this.rabbitID) {
+            this.rabbitPast = {
+                x: rabbitData.x != "" ? rabbitData.x : this.rabbitPast.x,
+                y: rabbitData.y != "" ? rabbitData.y : this.rabbitPast.y,
+                z: rabbitData.z != "" ? rabbitData.z : this.rabbitPast.z,
+
+                lookX: rabbitData.lookX != "" ? rabbitData.lookX : this.rabbitPast.lookX,
+                lookY: rabbitData.lookY != "" ? rabbitData.lookY : this.rabbitPast.lookY,
+                lookZ: rabbitData.lookZ != "" ? rabbitData.lookZ : this.rabbitPast.lookZ,
+
+                isDuck: rabbitData.isDuck != "" ? rabbitData.isDuck : this.rabbitPast.isDuck
+            };
+
+            if(rabbitData.size != "") {
+                this.rabbit.setSize(rabbitData.size);
+            }
+
             return;
         }
 
@@ -529,6 +609,10 @@ var WebSocketHandler = function(rabbit, floor) {
         this.rabbits[rabbitData.id].move(rabbitData.x, rabbitData.y, rabbitData.z);
         this.rabbits[rabbitData.id].lookAt(rabbitData.lookX, rabbitData.lookY, rabbitData.lookZ);
         this.rabbits[rabbitData.id].duck(rabbitData.isDuck);
+
+        if(rabbitData.size != "") {
+            this.rabbits[rabbitData.id].setSize(rabbitData.size);
+        }
 
         this.floor.addRabbit(this.rabbits[rabbitData.id], rabbitData.x, rabbitData.y, rabbitData.z);
 
@@ -568,6 +652,22 @@ var WebSocketHandler = function(rabbit, floor) {
     // Update Rabbit
     this.updateRabbit = function(rabbitData) {
         if(rabbitData.id == this.rabbitID) {
+            this.rabbitPast = {
+                x: rabbitData.x != "" ? rabbitData.x : this.rabbitPast.x,
+                y: rabbitData.y != "" ? rabbitData.y : this.rabbitPast.y,
+                z: rabbitData.z != "" ? rabbitData.z : this.rabbitPast.z,
+
+                lookX: rabbitData.lookX != "" ? rabbitData.lookX : this.rabbitPast.lookX,
+                lookY: rabbitData.lookY != "" ? rabbitData.lookY : this.rabbitPast.lookY,
+                lookZ: rabbitData.lookZ != "" ? rabbitData.lookZ : this.rabbitPast.lookZ,
+
+                isDuck: rabbitData.isDuck != "" ? rabbitData.isDuck : this.rabbitPast.isDuck
+            };
+
+            if(rabbitData.size != "") {
+                this.rabbit.setSize(rabbitData.size);
+            }
+
             return;
         }
 
@@ -627,7 +727,11 @@ var WebSocketHandler = function(rabbit, floor) {
             this.rabbitsAnimationHelper[rabbitData.id].toLookZ = this.rabbitsUpdateTo[rabbitData.id].lookZ;
         }
 
-        // We do not need animate loop for duck and chat
+        // We do not need animate loop for duck, size and chat
+
+        if(rabbitData.size != "" && rabbitData.size > 0 && rabbitData.size < 10) {
+            this.rabbits[rabbitData.id].setSize(rabbitData.size);
+        }
 
         if(rabbitData.isDuck != "") {
             var parseDuck = (rabbitData.isDuck == '1') ? true : false;

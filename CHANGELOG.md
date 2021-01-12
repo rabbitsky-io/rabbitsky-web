@@ -1,5 +1,14 @@
 # Rabbit Sky Client Changelog
 
+## Version 0.1.7
+- Handle size change on rabbit.
+- Add light on stage.
+- Add admin panel for better experience for changing sky, light, enable fly, change size, and bpm translator for sky and light. Panel will show on /admin command when the password is valid.
+- Add Disable Stage Light option on Setting.
+- Fix player not updating position if position is not the same as server.
+- Change stage opacity for better lighting.
+- Change rabbit duck to smaller size, so it's visible when player is ducking.
+
 ## Version 0.1.6.5
 - This version is compatible with Server v0.1.6.
 - Fix mobile control move always to the side, and add dead zone for look control.

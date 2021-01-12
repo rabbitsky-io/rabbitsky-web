@@ -151,6 +151,7 @@ function checkReady(num) {
             rabbitSky.disconnectHandler(onPlayerDisconnect);
             rabbitSky.setDomContainer(document.getElementById("in-game-container"));
             rabbitSky.mainRabbit.setColor(rabbitCustomizer.rabbit.colorH, rabbitCustomizer.rabbit.colorS, rabbitCustomizer.rabbit.colorL);
+            rabbitSky.setEnableAdminPanel(enableAdminPanel);
 
             /* Create Menu Background */
             createMenuBackground();
@@ -436,6 +437,7 @@ function toggleUI() {
         hideEmbedChatHideButton();
         hideHelpButton();
         hideChat();
+        hideAdminPanel();
     } else {
         showUI = true;
 
@@ -444,6 +446,7 @@ function toggleUI() {
         showEmbedChatHideButton();
         showHelpButton();
         showChat();
+        showAdminPanel();
     }
 }
 
@@ -653,6 +656,7 @@ function backToMenu() {
         hideOptionsButton();
         hideHelpButton();
         hideChat();
+        hideAdminPanel();
         hideTouchControl();
         hideEmbedChatHideButton();
     }
@@ -874,6 +878,88 @@ function mobileControlLookEnd(evt) {
     var button = document.getElementById("mobile-control-look-button");
     button.style.left = (box.clientWidth / 2) - (button.clientWidth / 2) + "px";
     button.style.top = (box.clientHeight / 2) - (button.clientHeight / 2) + "px";
+}
+
+function changeLightBPM(multiplier) {
+    if(rabbitSky.isPlayerAdmin()) {
+        var color = document.getElementById("adm-light-color").value;
+        var delay = Math.round(multiplier * document.getElementById("adm-bpm-to-ms").innerHTML);
+        var fade = Math.round(delay / document.querySelector('input[name="adm-light-fade"]:checked').value);
+        rabbitSky.sendChat("/light flash " + delay + " " + fade + " " + color);
+    }
+}
+
+function changeSkyBPM(multiplier) {
+    if(rabbitSky.isPlayerAdmin()) {
+        var colors = []
+        colors.push(document.getElementById("adm-sky-color-1").value);
+        for(var i = 2; i <= 4; i++) {
+            if(document.getElementById("adm-sky-color-" + i + "-enable").checked) {
+                colors.push(document.getElementById("adm-sky-color-" + i).value);
+            }
+        }
+
+        var delay = Math.round(multiplier * document.getElementById("adm-bpm-to-ms").innerHTML);
+        var fade = Math.round(delay / document.querySelector('input[name="adm-sky-fade"]:checked').value);
+        rabbitSky.sendChat("/skyflash " + delay + " " + fade + " " + colors.join(" "));
+    }
+}
+
+var bpmTs = []
+var bpmTimer;
+
+function bpmTap() {
+    bpmTs.push(Date.now());
+    document.getElementById("adm-bpm-tap").value = "BPM Tap " + (((bpmTs.length-1) % 4) + 1) + "/4";
+
+    if(bpmTs.length > 1) {
+        var totalMs = 0;
+        for(var i = 1; i < bpmTs.length; i++) {
+            totalMs += bpmTs[i] - bpmTs[i-1];
+        }
+
+        var avgMs = totalMs / (bpmTs.length - 1);
+        var bpm = Math.round(60000 / avgMs);
+        document.getElementById("adm-bpm").value = bpm;
+        document.getElementById("adm-bpm-to-ms").innerHTML = Math.round(60000 / bpm * 4);
+    }
+
+    if(typeof bpmTimer !== 'undefined') {
+        clearInterval(bpmTimer);
+    }
+
+    bpmTimer = setTimeout(function(){
+        document.getElementById("adm-bpm-tap").value = "BPM Tap";
+        bpmTs = [];
+    }, 2000);
+}
+
+function bpmTapReset() {
+    if(typeof bpmTimer !== 'undefined') {
+        clearInterval(bpmTimer);
+    }
+
+    document.getElementById("adm-bpm-tap").value = "BPM Tap";
+    bpmTs = [];
+}
+
+var adminPanel = false;
+
+function enableAdminPanel() {
+    adminPanel = true;
+    showAdminPanel();
+}
+
+function showAdminPanel() {
+    if(!adminPanel) {
+        return
+    }
+
+    document.getElementById("adminbox").classList.remove("none");
+}
+
+function hideAdminPanel() {
+    document.getElementById("adminbox").classList.add("none");
 }
 
 var holdCTRL = false;
@@ -1204,6 +1290,149 @@ function initListenAll() {
                 document.exitFullscreen();
             }
         }
+    });
+
+    // Admin Stuff
+    document.getElementById("adm-header").addEventListener("click", function(evt){
+        var elem = document.getElementById("admcontainer");
+        if(elem.classList.contains("none")) {
+            document.getElementById("adminbox-minimize").innerHTML = "-";
+            elem.classList.remove("none");
+        } else {
+            document.getElementById("adminbox-minimize").innerHTML = "+";
+            elem.classList.add("none");
+        }
+
+        rabbitSky.focus();
+    });
+    document.getElementById("adm-fly-off").addEventListener("click", function(evt){
+        if(rabbitSky.isPlayerAdmin()) {
+            rabbitSky.sendChat("/fly off");
+        }
+
+        rabbitSky.focus();
+    });
+    document.getElementById("adm-fly-on").addEventListener("click", function(evt){
+        if(rabbitSky.isPlayerAdmin()) {
+            rabbitSky.sendChat("/fly on");
+        }
+
+        rabbitSky.focus();
+    });
+    document.getElementById("adm-size-change").addEventListener("click", function(evt){
+        if(rabbitSky.isPlayerAdmin()) {
+            var size = document.getElementById("adm-size").value;
+            if(size < 1 || size > 9) {
+                size = 1;
+            }
+
+            rabbitSky.sendChat("/size " + size);
+        }
+
+        rabbitSky.focus();
+    });
+    document.getElementById("adm-bpm").addEventListener("change", function(evt){
+        evt.preventDefault();
+        if(evt.target.value <= 0 || evt.target.value > 9999) {
+            return
+        }
+
+        document.getElementById("adm-bpm-to-ms").innerHTML = Math.round(60000 / evt.target.value * 4);
+    });
+    document.getElementById("adm-bpm").addEventListener("keyup", function(evt){
+        if(evt.target.value <= 0 || evt.target.value > 9999) {
+            return
+        }
+
+        document.getElementById("adm-bpm-to-ms").innerHTML = Math.round(60000 / evt.target.value * 4);
+    });
+    document.getElementById("adm-bpm-tap").addEventListener("click", function(evt){
+        bpmTap()
+        rabbitSky.focus();
+    });
+    document.getElementById("adm-bpm-tap-reset").addEventListener("click", function(evt){
+        bpmTapReset()
+        rabbitSky.focus();
+    });
+    document.getElementById("adm-light-always-off").addEventListener("click", function(evt){
+        if(rabbitSky.isPlayerAdmin()) {
+            rabbitSky.sendChat("/light off");
+        }
+
+        rabbitSky.focus();
+    });
+    document.getElementById("adm-light-always-on").addEventListener("click", function(evt){
+        if(rabbitSky.isPlayerAdmin()) {
+            var color = document.getElementById("adm-light-color").value;
+            rabbitSky.sendChat("/light on " + color);
+        }
+
+        rabbitSky.focus();
+    });
+    document.getElementById("adm-light-bpm-1").addEventListener("click", function(evt){
+        changeLightBPM(1);
+
+        rabbitSky.focus();
+    });
+    document.getElementById("adm-light-bpm-1-2").addEventListener("click", function(evt){
+        changeLightBPM(0.5);
+
+        rabbitSky.focus();
+    });
+    document.getElementById("adm-light-bpm-1-4").addEventListener("click", function(evt){
+        changeLightBPM(0.25);
+
+        rabbitSky.focus();
+    });
+    document.getElementById("adm-light-bpm-1-8").addEventListener("click", function(evt){
+        changeLightBPM(0.125);
+
+        rabbitSky.focus();
+    });
+    document.getElementById("adm-light-reset").addEventListener("click", function(evt){
+        document.getElementsByName("adm-light-fade")[1].checked = true;
+        document.getElementById("adm-light-color").value = document.getElementById("adm-light-color").getAttribute("value");
+
+        rabbitSky.focus();
+    });
+    document.getElementById("adm-sky-static").addEventListener("click", function(evt){
+        if(rabbitSky.isPlayerAdmin()) {
+            var color = document.getElementById("adm-sky-color-1").value;
+            rabbitSky.sendChat("/sky " + color);
+        }
+
+        rabbitSky.focus();
+    });
+    document.getElementById("adm-sky-bpm-1").addEventListener("click", function(evt){
+        changeSkyBPM(1);
+
+        rabbitSky.focus();
+    });
+    document.getElementById("adm-sky-bpm-1-2").addEventListener("click", function(evt){
+        changeSkyBPM(0.5);
+
+        rabbitSky.focus();
+    });
+    document.getElementById("adm-sky-bpm-1-4").addEventListener("click", function(evt){
+        changeSkyBPM(0.25);
+
+        rabbitSky.focus();
+    });
+    document.getElementById("adm-sky-bpm-1-8").addEventListener("click", function(evt){
+        changeSkyBPM(0.125);
+
+        rabbitSky.focus();
+    });
+    document.getElementById("adm-sky-reset").addEventListener("click", function(evt){
+        document.getElementsByName("adm-sky-fade")[1].checked = true;
+        for(var i = 1; i <= 4; i++) {
+            document.getElementById("adm-sky-color-" + i).value = document.getElementById("adm-sky-color-" + i).getAttribute("value");
+            if(i >= 2) {
+                document.getElementById("adm-sky-color-" + i + "-enable").checked = false;
+            }
+        }
+
+        rabbitSky.focus();
     });
 
     window.addEventListener("keydown", function(evt){

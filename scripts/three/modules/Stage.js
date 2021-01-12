@@ -5,7 +5,8 @@ import {
     MeshBasicMaterial,
     Mesh,
     TextureLoader,
-    PlaneBufferGeometry
+    PlaneBufferGeometry,
+    PointLight
 } from '../three.module.js';
 
 import { BufferGeometryUtils } from "./BuffersGeometryUtils.js";
@@ -51,13 +52,22 @@ var Stage = function(rabbit, scene) {
         roughness: 0.3,
         metalness: 0,
         transparent: true,
-        opacity: 0.5
+        opacity: 0.7
     });
 
     this.stage = new Mesh( stageMerge, stageMaterial );
     this.stage.position.set(2000, 690, 3600);
 
     this.scene.add(this.stage);
+
+    // Create Lights
+    this.backLightDelay = 1500;
+    this.backLightFade = 1250;
+    this.backLightDelta = 0;
+    this.backLightState = 0; // 0 to on, 1 to off, 2 always on, 3 always off
+    this.backLight = new PointLight(0x4857b5, 10, 4000, 1);
+    this.backLight.position.set(2000, 690, 3700);
+    this.scene.add(this.backLight);
 
     // Create Speaker
     this.speakerLeft = new Speaker();
@@ -123,7 +133,7 @@ var Stage = function(rabbit, scene) {
     this.bigRabbit.object.position.set(this.stage.position.x, 2200, this.stage.position.z + 300);
     this.bigRabbit.object.lookAt(0, this.bigRabbit.object.position.y, 0);
     this.bigRabbit.object.material.transparent = true;
-    this.bigRabbit.object.material.opacity = 0.5;
+    this.bigRabbit.object.material.opacity = 0.7;
 
     this.scene.add(this.bigRabbit.object);
 
@@ -248,9 +258,68 @@ var Stage = function(rabbit, scene) {
         return false;
     };
 
+    this.lightAlwaysOff = function() {
+        this.backLightState = 3;
+    };
+
+    this.lightAlwaysOn = function() {
+        this.backLightState = 2;
+    };
+
+    this.lightBlink = function(delay, fade) {
+        if(this.backLightState > 1) {
+            this.backLightState = 0;
+            this.backLightDelta = 0;
+        }
+        this.backLightDelay = delay;
+        this.backLightFade = fade;
+    };
+
+    this.lightColor = function(color) {
+        this.backLight.color.setStyle(color);
+    };
+
+    this.lightDisable = function() {
+        this.backLight.visible = false;
+    };
+
+    this.lightEnable = function() {
+        this.backLight.visible = true;
+    };
+
     this.update = function(delta) {
         if(this.hideAll) {
             return;
+        }
+
+        if(this.backLight.visible) {
+            if(this.backLightState == 0) {
+                this.backLightDelta += (delta * 1000);
+                if(this.backLightDelta > this.backLightDelay) {
+                    this.backLightDelta = this.backLightDelta % this.backLightDelay;
+                    this.backLightState = 1;
+                    this.backLight.intensity = 10 - (10 * ((this.backLightDelta%this.backLightFade) / this.backLightFade));
+                } else {
+                    if(this.backLightDelta < this.backLightFade) {
+                        this.backLight.intensity = 10 * (this.backLightDelta / this.backLightFade);
+                    }
+                }
+            } else if(this.backLightState == 1) {
+                    this.backLightDelta += (delta * 1000);
+                    if(this.backLightDelta > this.backLightDelay) {
+                        this.backLightDelta = this.backLightDelta % this.backLightDelay;
+                        this.backLightState = 0;
+                        this.backLight.intensity = 10 * ((this.backLightDelta%this.backLightFade) / this.backLightFade);
+                    } else {
+                        if(this.backLightDelta < this.backLightFade) {
+                            this.backLight.intensity = 10 - (10 * (this.backLightDelta / this.backLightFade));
+                        }
+                    }
+            } else if(this.backLightState == 2 && this.backLight.intensity != 10) {
+                this.backLight.intensity = 10;
+            } else if(this.backLightState == 3 && this.backLight.intensity != 0) {
+                this.backLight.intensity = 0;
+            }
         }
 
         this.bigRabbit.object.lookAt(rabbit.object.position.x, this.bigRabbit.object.position.y, rabbit.object.position.z);

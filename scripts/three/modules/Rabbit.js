@@ -78,12 +78,15 @@ var Rabbit = function(h, s, l, eyeR, eyeG, eyeB) {
     this.colorEyeG = (typeof eyeG === 'undefined') ? "" : parseInt(eyeG);
     this.colorEyeB = (typeof eyeB === 'undefined') ? "" : parseInt(eyeB);
 
-    this.width = RabbitSize.width;
-    this.height = RabbitSize.height;
-    this.depth = RabbitSize.depth;
+    this.size = 1;
+
+    this.width = RabbitSize.width * this.size;
+    this.height = RabbitSize.height * this.size;
+    this.depth = RabbitSize.depth * this.size;
 
     this.isDuck = false;
 
+    this.isAdmin = false;
     this.canFly = false;
 
     this.lookX = 0;
@@ -148,40 +151,43 @@ var Rabbit = function(h, s, l, eyeR, eyeG, eyeB) {
             return;
         }
 
-        // This prevent if chat already sent, but user sent too frequently. Performance Issue.
         if(this.objectChat.visible) {
-            return;
+            this.objectChat.visible = false;
         }
 
         if(/^([A-Z0-9]|\p{Emoji_Component}\p{Emoji_Component}|\p{Extended_Pictographic})$/u.test(chat)) {
             this.textCanvasCtx.clearRect(0, 0, this.textCanvas.width, this.textCanvas.height);
 
-            this.textCanvas.width = 200;
-            this.textCanvas.height = 200;
+            this.textCanvas.width = 200 * this.size ;
+            this.textCanvas.height = 200 * this.size;
 
-            this.textCanvasCtx.font = "100px 'Press Start 2P'";
+            var fontSize = this.size * 100;
+
+            this.textCanvasCtx.font = fontSize + "px 'Press Start 2P'";
             this.textCanvasCtx.fillStyle = 'white';
             this.textCanvasCtx.textAlign = 'center';
             this.textCanvasCtx.fillText( chat, (this.textCanvas.width / 2), (this.textCanvas.height / 2) );
 
-            this.objectChat.scale.set( this.textCanvas.width / 6, this.textCanvas.height / 6, 1 );
+            this.objectChat.scale.set( this.textCanvas.width / (this.size * 6), this.textCanvas.height / (this.size * 6), 1 );
         } else {
             this.textCanvasCtx.clearRect(0, 0, this.textCanvas.width, this.textCanvas.height);
 
             this.textCanvasCtx.font = "30px 'Press Start 2P'";
             var textCanvasSize = this.textCanvasCtx.measureText(chat);
 
-            this.textCanvas.width = textCanvasSize.width + 60;
-            this.textCanvas.height = 60;
+            this.textCanvas.width = (textCanvasSize.width + 60) * this.size;
+            this.textCanvas.height = 60 * this.size;
 
-            this.textCanvasCtx.font = "30px 'Press Start 2P'";
+            var fontSize = this.size * 30;
+
+            this.textCanvasCtx.font = fontSize + "px 'Press Start 2P'";
             this.textCanvasCtx.fillStyle = 'rgba(0, 0, 0, 0.5)';
             this.textCanvasCtx.fillRect(0, 0, this.textCanvas.width - 10, this.textCanvas.height);
             this.textCanvasCtx.fillStyle = 'white';
             this.textCanvasCtx.textAlign = 'left';
-            this.textCanvasCtx.fillText( chat, 25, 45 );
+            this.textCanvasCtx.fillText( chat, this.size * 25, this.size * 45 );
 
-            this.objectChat.scale.set( this.textCanvas.width / 6, this.textCanvas.height / 6, 1 );
+            this.objectChat.scale.set( this.textCanvas.width / (this.size * 6), this.textCanvas.height / (this.size * 6), 1 );
         }
 
         this.objectChat.material.map.needsUpdate = true;
@@ -195,13 +201,13 @@ var Rabbit = function(h, s, l, eyeR, eyeG, eyeB) {
 
         this.chatTimeout = setTimeout(function(){
             thisObj.clearChat();
-        }, 3000);
-    }
+        }, 5000);
+    };
 
     this.clearChat = function(){
         this.objectChat.visible = false;
         this.objectChat.scale.set( 0, 0, 1 );
-    }
+    };
 
     this.setColor = function(h, s, l) {
         this.colorH = (typeof h === 'undefined') ? (Math.floor(Math.random() * 360)) : parseInt(h);
@@ -212,6 +218,15 @@ var Rabbit = function(h, s, l, eyeR, eyeG, eyeB) {
         this.object.material.emissive.setStyle("hsl(" + this.colorH + "," + this.colorS + "%," + (this.colorL - 10) + "%)");
     };
 
+    this.setSize = function(size) {
+        if(size < 1 || size > 9) {
+            return;
+        }
+
+        this.size = size;
+        this.object.scale.set(this.size, this.size, this.size);
+    }
+
     this.currentLookAt = function() {
         this.rabbitLookAtHelper.getWorldPosition(this.rabbitLookAtHelperVector);
 
@@ -220,7 +235,7 @@ var Rabbit = function(h, s, l, eyeR, eyeG, eyeB) {
             y: this.rabbitLookAtHelperVector.y,
             z: this.rabbitLookAtHelperVector.z
         }
-    }
+    };
 
     this.move = function(x, y, z) {
         this.object.position.set(parseFloat(x), parseFloat(y), parseFloat(z));
@@ -241,9 +256,9 @@ var Rabbit = function(h, s, l, eyeR, eyeG, eyeB) {
     this.duck = function(isDuck) {
         if (isDuck != this.isDuck) {
             if (isDuck) {
-                this.object.scale.y = 0.9;
+                this.object.scale.y = this.size * 0.8;
             } else {
-                this.object.scale.y = 1;
+                this.object.scale.y = this.size;
             }
 
             this.isDuck = isDuck;

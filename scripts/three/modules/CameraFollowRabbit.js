@@ -6,13 +6,18 @@ var CameraFollowRabbit = function ( camera, rabbit ) {
 
     this.camera = camera;
     this.rabbit = rabbit;
+
+    // Rabbit Stuff Cache
+    this.currentRabbitSize = this.rabbit.size;
+    this.currentZoomoutMultiplier = Math.ceil(this.currentRabbitSize / 2);
+
     this.objectToFollow = this.rabbit.object;
 
     this.cameraAttached = true;
 
     this.cameraWorldPosition = new Vector3(0, 0, 0)
-    this.cameraLerp = new Vector3(0, 50, -140)
-    this.cameraZoom = new Vector3(0, 30, -50)
+    this.cameraLerp = new Vector3(0, this.currentZoomoutMultiplier * 50, this.currentZoomoutMultiplier * -140)
+    this.cameraZoom = new Vector3(0, this.currentZoomoutMultiplier * 30, this.currentZoomoutMultiplier * -50)
 
     this.cameraIsLerp = false;
 
@@ -24,12 +29,12 @@ var CameraFollowRabbit = function ( camera, rabbit ) {
 
     // Look At
     this.objectCameraLookAt = new Object3D();
-    this.objectCameraLookAt.position.set(0, 50, 100);
+    this.objectCameraLookAt.position.set(0, this.currentZoomoutMultiplier * 50, this.currentZoomoutMultiplier * 100);
     this.object.add(this.objectCameraLookAt);
 
     // Camera Detection
     this.objectCameraDetection = new Object3D();
-    this.objectCameraDetection.position.set(0, 50, -140);
+    this.objectCameraDetection.position.set(0, this.currentZoomoutMultiplier * 50, this.currentZoomoutMultiplier * -140);
     this.objectCameraDetection.lookAt(this.objectCameraLookAt.position);
 
     this.object.add(this.objectCameraDetection);
@@ -51,7 +56,7 @@ var CameraFollowRabbit = function ( camera, rabbit ) {
         this.object.lookAt(0, 0, 1);
 
         this.object.add(this.camera);
-        this.camera.position.set(0, 50, -140);
+        this.camera.position.set(0, (this.currentZoomoutMultiplier * 50), (this.currentZoomoutMultiplier * -140));
         this.camera.lookAt(this.objectCameraLookAt.position);
 
         this.object.position.set(this.objectToFollow.position);
@@ -75,6 +80,23 @@ var CameraFollowRabbit = function ( camera, rabbit ) {
     this.update = function() {
         if(!this.cameraAttached) {
             return;
+        }
+
+        if(this.currentRabbitSize != this.rabbit.size) {
+            this.currentRabbitSize = this.rabbit.size;
+            this.currentZoomoutMultiplier = Math.ceil(this.currentRabbitSize / 2);
+
+            this.objectCameraLookAt.position.z = this.currentZoomoutMultiplier * 100;
+            this.objectCameraLookAt.position.y = this.currentZoomoutMultiplier * 50;
+            this.objectCameraDetection.position.z = this.currentZoomoutMultiplier * -140;
+            this.objectCameraDetection.position.y = this.currentZoomoutMultiplier * 50;
+            this.cameraLerp.z = this.currentZoomoutMultiplier * -140;
+            this.cameraLerp.y = this.currentZoomoutMultiplier * 50;
+            this.cameraZoom.z = this.currentZoomoutMultiplier * -50;
+            this.cameraZoom.y = this.currentZoomoutMultiplier * 30;
+
+            this.detach();
+            this.attach();
         }
 
         var posY = this.objectCameraInitPosition.y;
